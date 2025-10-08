@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Force light theme - override all dark mode */
+* {
+  color-scheme: light !important;
+}
+
+html {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+body {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Override any dark mode preferences */
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+  }
+}
+
+/* Ensure all elements use light theme */
+div,
+section,
+nav,
+main,
+footer {
+  background-color: inherit !important;
+  color: inherit !important;
+}
