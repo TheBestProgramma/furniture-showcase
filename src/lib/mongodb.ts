@@ -1,19 +1,8 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_DB = process.env.MONGODB_DB;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-}
-
-if (!MONGODB_DB) {
-  throw new Error('Please define the MONGODB_DB environment variable inside .env.local');
-}
-
 // Type assertion after runtime checks
-const mongoUri = MONGODB_URI as string;
-const mongoDb = MONGODB_DB as string;
+const mongoUri = process.env.MONGODB_URI;
+const mongoDb = process.env.MONGODB_DB;
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -27,6 +16,15 @@ if (!cached) {
 }
 
 async function connectDB() {
+  // Check environment variables at runtime, not during build
+  if (!mongoUri) {
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  }
+
+  if (!mongoDb) {
+    throw new Error('Please define the MONGODB_DB environment variable inside .env.local');
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
