@@ -87,7 +87,7 @@ const mockFurniture: IFurniture[] = [
     description: '5-tier bookshelf unit perfect for organizing books, decor, and storage. Made from engineered wood with a clean finish.',
     price: 30000,
     category: 'shelf',
-    images: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500'],
+    images: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500', 'https://images.unsplash.com/photo-1549497538-303791108f95?w=500'],
     dimensions: { width: 30, height: 72, depth: 12 },
     material: 'wood',
     color: 'walnut',

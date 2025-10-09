@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { IFurniture } from '@/lib/models/Furniture';
 
 interface ProductCardProps {
@@ -7,6 +8,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const router = useRouter();
+
   const formatPrice = (price: number) => {
     return `KSh ${price.toLocaleString('en-KE')}`;
   };
@@ -80,13 +83,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Quick View Button - Shows on Hover */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 backdrop-blur-0 group-hover:backdrop-blur-sm">
           <button 
             className="bg-white text-gray-900 px-4 py-2 rounded-md font-medium shadow-lg hover:bg-gray-50 transition-colors duration-200 transform translate-y-2 group-hover:translate-y-0"
-            onClick={() => {
-              // Quick view functionality - could open a modal or navigate to product page
-              console.log('Quick view for:', product.name);
-            }}
+            onClick={() => router.push(`/products/${product._id}`)}
           >
             Quick View
           </button>
@@ -132,6 +132,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {formatPrice(product.price)}
           </div>
           <button 
+            onClick={() => router.push(`/products/${product._id}`)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
             disabled={!product.inStock}
           >
