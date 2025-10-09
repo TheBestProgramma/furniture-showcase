@@ -21,12 +21,12 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 group relative">
       {/* Product Image */}
-      <div className="relative h-64 bg-gray-100">
+      <div className="relative h-64 bg-gray-100 group overflow-hidden">
         {product.images && product.images.length > 0 ? (
           <img
             src={product.images[0]}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:brightness-75"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -82,14 +82,20 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* Quick View Button - Shows on Hover */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 backdrop-blur-0 group-hover:backdrop-blur-sm">
-          <button 
-            className="bg-white text-gray-900 px-4 py-2 rounded-md font-medium shadow-lg hover:bg-gray-50 transition-colors duration-200 transform translate-y-2 group-hover:translate-y-0"
-            onClick={() => router.push(`/products/${product._id}`)}
-          >
-            Quick View
-          </button>
+        {/* Clickable Overlay - Shows on Hover */}
+        <div 
+          className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 opacity-0 group-hover:opacity-100 cursor-pointer flex items-center justify-center"
+          onClick={() => router.push(`/products/${product._id}`)}
+        >
+          {/* Hover indicator */}
+          <div className="transform scale-0 group-hover:scale-100 transition-all duration-300">
+            <div className="bg-white bg-opacity-90 rounded-full p-3 shadow-lg">
+              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 

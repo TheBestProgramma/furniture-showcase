@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ImageGallery from '@/components/ImageGallery';
 import { IFurniture } from '@/lib/models/Furniture';
+import { useCartStore } from '@/store/cartStore';
 
 // Mock furniture data (same as in products page)
 const mockFurniture: IFurniture[] = [
@@ -167,6 +168,7 @@ const availableColors = {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const addItem = useCartStore((state) => state.addItem);
   const [product, setProduct] = useState<IFurniture | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
@@ -198,16 +200,18 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!product) return;
     
-    // Simulate adding to cart
-    const cartItem = {
-      product: product.name,
-      quantity,
-      color: selectedColor,
-      price: product.price,
-      total: product.price * quantity
-    };
-    
-    console.log('Added to cart:', cartItem);
+    // Add to cart using Zustand store
+    for (let i = 0; i < quantity; i++) {
+      addItem({
+        id: `${product._id}-${selectedColor}`,
+        name: product.name,
+        price: product.price,
+        color: selectedColor,
+        image: product.images[0],
+        category: product.category,
+        inStock: product.inStock
+      });
+    }
     
     // Show success feedback
     setCartFeedback({
