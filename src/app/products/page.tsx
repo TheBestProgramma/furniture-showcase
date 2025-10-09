@@ -4,8 +4,29 @@ import { useState, useMemo, useEffect } from 'react';
 import ProductCard from '@/components/ProductCard';
 import { IFurniture } from '@/lib/models/Furniture';
 
+// Common interface for furniture data (used by both mock data and components)
+interface FurnitureData {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  material: string;
+  dimensions: {
+    width: number;
+    height: number;
+    depth: number;
+  };
+  color: string;
+  images: string[];
+  inStock: boolean;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Mock furniture data
-const mockFurniture: IFurniture[] = [
+const mockFurniture: FurnitureData[] = [
   {
     _id: '1',
     name: 'Modern Leather Sofa',

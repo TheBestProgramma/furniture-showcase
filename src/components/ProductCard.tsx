@@ -3,8 +3,29 @@
 import { useRouter } from 'next/navigation';
 import { IFurniture } from '@/lib/models/Furniture';
 
+// Common interface for furniture data (used by both mock data and components)
+interface FurnitureData {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  material: string;
+  dimensions: {
+    width: number;
+    height: number;
+    depth: number;
+  };
+  color: string;
+  images: string[];
+  inStock: boolean;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface ProductCardProps {
-  product: IFurniture;
+  product: FurnitureData;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {

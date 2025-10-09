@@ -5,12 +5,33 @@ import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryBySlug, categories } from '@/lib/types/categories';
 import { IFurniture } from '@/lib/models/Furniture';
+
+// Common interface for furniture data (used by both mock data and components)
+interface FurnitureData {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  material: string;
+  dimensions: {
+    width: number;
+    height: number;
+    depth: number;
+  };
+  color: string;
+  images: string[];
+  inStock: boolean;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 import CategoryBanner from '@/components/CategoryBanner';
 import CategorySidebar from '@/components/CategorySidebar';
 import ProductCard from '@/components/ProductCard';
 
 // Mock products data - in a real app, this would come from an API
-const mockProducts: IFurniture[] = [
+const mockProducts: FurnitureData[] = [
   {
     _id: '1',
     name: 'Modern Platform Bed',
