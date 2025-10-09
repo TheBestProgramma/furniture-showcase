@@ -149,3 +149,4 @@ export const getTestimonialsByRating = (minRating: number): Testimonial[] => {
 export const getVerifiedTestimonials = (): Testimonial[] => {
   return mockTestimonials.filter(testimonial => testimonial.verified);
 };
+

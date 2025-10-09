@@ -89,3 +89,4 @@ export function useTestimonialsByRating(minRating: number, limit?: number) {
 export function useHomepageTestimonials() {
   return useFeaturedTestimonials(6);
 }
+

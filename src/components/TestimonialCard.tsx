@@ -174,3 +174,4 @@ export default function TestimonialCard({ testimonial, variant = 'default' }: Te
     </div>
   );
 }
+

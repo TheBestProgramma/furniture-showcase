@@ -90,3 +90,4 @@ export default function CategorySidebar({ currentCategory }: CategorySidebarProp
     </div>
   );
 }
+

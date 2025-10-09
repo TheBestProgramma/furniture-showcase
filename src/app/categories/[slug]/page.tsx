@@ -19,7 +19,7 @@ const mockProducts: IFurniture[] = [
     category: 'beds',
     material: 'Oak Wood',
     dimensions: { width: 160, height: 20, depth: 200 },
-    colors: ['Natural Oak', 'Dark Walnut', 'White'],
+    color: 'Natural Oak',
     images: [
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
@@ -37,7 +37,7 @@ const mockProducts: IFurniture[] = [
     category: 'sofas',
     material: 'Premium Fabric',
     dimensions: { width: 300, height: 85, depth: 200 },
-    colors: ['Charcoal Gray', 'Navy Blue', 'Cream'],
+    color: 'Charcoal Gray',
     images: [
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
@@ -55,7 +55,7 @@ const mockProducts: IFurniture[] = [
     category: 'dining',
     material: 'Mahogany Wood',
     dimensions: { width: 180, height: 75, depth: 90 },
-    colors: ['Rich Mahogany', 'Dark Cherry'],
+    color: 'Rich Mahogany',
     images: [
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
@@ -73,7 +73,7 @@ const mockProducts: IFurniture[] = [
     category: 'storage',
     material: 'Pine Wood',
     dimensions: { width: 80, height: 180, depth: 30 },
-    colors: ['Natural Pine', 'White', 'Oak'],
+    color: 'Natural Pine',
     images: [
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
@@ -91,7 +91,7 @@ const mockProducts: IFurniture[] = [
     category: 'office',
     material: 'Walnut Wood',
     dimensions: { width: 150, height: 75, depth: 80 },
-    colors: ['Dark Walnut', 'Natural Walnut'],
+    color: 'Dark Walnut',
     images: [
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
@@ -109,7 +109,7 @@ const mockProducts: IFurniture[] = [
     category: 'outdoor',
     material: 'Teak Wood',
     dimensions: { width: 120, height: 75, depth: 120 },
-    colors: ['Natural Teak', 'Stained Teak'],
+    color: 'Natural Teak',
     images: [
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
@@ -328,3 +328,4 @@ export default function CategoryPage() {
     </div>
   );
 }
+
