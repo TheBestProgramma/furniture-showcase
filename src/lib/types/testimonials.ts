@@ -64,7 +64,7 @@ export const mockTestimonials: Testimonial[] = [
     location: 'Nairobi, Kenya',
     rating: 5,
     text: 'Absolutely love my new leather sofa! The quality is exceptional and it fits perfectly in my living room. The delivery was prompt and the customer service was outstanding.',
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&auto=format&q=80',
+    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&auto=format&q=80&ixlib=rb-4.0.3',
     product: 'Premium Leather Sofa',
     date: new Date('2024-01-10'),
     verified: true,

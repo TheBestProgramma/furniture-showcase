@@ -33,21 +33,24 @@ export default function TestimonialCard({ testimonial, variant = 'default' }: Te
 
   if (variant === 'compact') {
     return (
-      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300">
+      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300">
         <div className="flex items-start gap-3">
           {testimonial.image ? (
             <img
               src={testimonial.image}
               alt={testimonial.name}
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
             />
-          ) : (
-            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-600 font-semibold text-sm">
-                {testimonial.name.charAt(0)}
-              </span>
-            </div>
-          )}
+          ) : null}
+          <div className={`w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 ${testimonial.image ? 'hidden' : ''}`}>
+            <span className="text-primary-600 font-semibold text-sm">
+              {testimonial.name.charAt(0)}
+            </span>
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-semibold text-gray-900 text-sm truncate">
@@ -73,21 +76,24 @@ export default function TestimonialCard({ testimonial, variant = 'default' }: Te
 
   if (variant === 'featured') {
     return (
-      <div className="bg-gradient-to-br from-white to-primary-50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-primary-100">
+      <div className="bg-gradient-to-br from-white to-primary-50 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-primary-100 hover:border-primary-200">
         <div className="flex items-center gap-4 mb-4">
           {testimonial.image ? (
             <img
               src={testimonial.image}
               alt={testimonial.name}
               className="w-16 h-16 rounded-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
             />
-          ) : (
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
-              <span className="text-primary-600 font-bold text-xl">
-                {testimonial.name.charAt(0)}
-              </span>
-            </div>
-          )}
+          ) : null}
+          <div className={`w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center ${testimonial.image ? 'hidden' : ''}`}>
+            <span className="text-primary-600 font-bold text-xl">
+              {testimonial.name.charAt(0)}
+            </span>
+          </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h4 className="font-bold text-lg text-gray-900">
@@ -125,21 +131,24 @@ export default function TestimonialCard({ testimonial, variant = 'default' }: Te
 
   // Default variant
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-gray-200">
       <div className="flex items-center gap-3 mb-4">
         {testimonial.image ? (
           <img
             src={testimonial.image}
             alt={testimonial.name}
             className="w-12 h-12 rounded-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
           />
-        ) : (
-          <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-            <span className="text-primary-600 font-semibold">
-              {testimonial.name.charAt(0)}
-            </span>
-          </div>
-        )}
+        ) : null}
+        <div className={`w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center ${testimonial.image ? 'hidden' : ''}`}>
+          <span className="text-primary-600 font-semibold">
+            {testimonial.name.charAt(0)}
+          </span>
+        </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <h4 className="font-semibold text-gray-900">
