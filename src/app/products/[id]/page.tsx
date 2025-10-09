@@ -190,7 +190,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
-  const [product, setProduct] = useState<IFurniture | null>(null);
+  const [product, setProduct] = useState<FurnitureData | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
   const [loading, setLoading] = useState(true);
