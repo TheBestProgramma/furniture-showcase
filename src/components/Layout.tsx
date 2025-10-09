@@ -9,7 +9,7 @@ interface LayoutProps {
   children: React.ReactNode
 }
 
-export default function Layout({ children }: LayoutProps) {
+function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const toggleMobileMenu = () => {
@@ -50,6 +50,11 @@ export default function Layout({ children }: LayoutProps) {
               <li>
                 <Link href="/tips" className="hover:text-primary-200 transition-colors">
                   Tips
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-primary-200 transition-colors">
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -131,6 +136,15 @@ export default function Layout({ children }: LayoutProps) {
                     Tips
                   </Link>
                 </li>
+                <li>
+                  <Link 
+                    href="/contact" 
+                    className="block py-2 hover:text-primary-200 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
           )}
@@ -147,3 +161,5 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   )
 }
+
+export default Layout;
