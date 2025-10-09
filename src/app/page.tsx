@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import TestimonialsSection from '@/components/TestimonialsSection'
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -195,6 +196,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection variant="homepage" />
 
       {/* Enhanced Tips Section */}
       <section className="py-20 bg-white">

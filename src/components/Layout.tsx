@@ -38,6 +38,11 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
               </li>
               <li>
+                <Link href="/categories" className="hover:text-primary-200 transition-colors">
+                  Categories
+                </Link>
+              </li>
+              <li>
                 <Link href="/products" className="hover:text-primary-200 transition-colors">
                   Products
                 </Link>
@@ -97,6 +102,15 @@ export default function Layout({ children }: LayoutProps) {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Home
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/categories" 
+                    className="block py-2 hover:text-primary-200 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Categories
                   </Link>
                 </li>
                 <li>
