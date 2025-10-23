@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Product from '@/lib/models/Product';
+import Tip from '@/lib/models/Tip';
 import mongoose from 'mongoose';
 
 export async function GET(
@@ -17,53 +17,59 @@ export async function GET(
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Invalid product ID format' 
+          error: 'Invalid tip ID format' 
         },
         { status: 400 }
       );
     }
 
-    // Find product by ID with category population
-    const product = await Product.findById(id)
-      .populate('category', 'name slug description image')
-      .lean();
+    // Find tip by ID
+    const tip = await Tip.findById(id).lean();
 
-    if (!product) {
+    if (!tip) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Product not found' 
+          error: 'Tip not found' 
         },
         { status: 404 }
       );
     }
 
-    // Get related products (same category, excluding current product)
-    const relatedProducts = await Product.find({
-      category: product.category._id,
-      _id: { $ne: product._id }
+    // Increment view count
+    await Tip.findByIdAndUpdate(id, { $inc: { views: 1 } });
+
+    // Get related tips (same category, excluding current tip)
+    const relatedTips = await Tip.find({
+      category: tip.category,
+      _id: { $ne: tip._id },
+      published: true
     })
-      .populate('category', 'name slug')
-      .limit(4)
+      .sort({ featured: -1, publishedAt: -1 })
+      .limit(3)
+      .select('title slug excerpt image readTime views likes category author publishedAt')
       .lean();
 
     // Response data
     const response = {
       success: true,
       data: {
-        product,
-        relatedProducts
+        tip: {
+          ...tip,
+          views: tip.views + 1 // Include the incremented view count
+        },
+        relatedTips
       }
     };
 
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error('Error fetching tip:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to fetch product',
+        error: 'Failed to fetch tip',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -71,7 +77,7 @@ export async function GET(
   }
 }
 
-// Optional: Add PUT method for updating product
+// PUT method for updating tips (admin only - for future implementation)
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -87,24 +93,24 @@ export async function PUT(
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Invalid product ID format' 
+          error: 'Invalid tip ID format' 
         },
         { status: 400 }
       );
     }
 
-    // Update product
-    const product = await Product.findByIdAndUpdate(
+    // Update tip
+    const tip = await Tip.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }
-    ).populate('category', 'name slug');
+    );
 
-    if (!product) {
+    if (!tip) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Product not found' 
+          error: 'Tip not found' 
         },
         { status: 404 }
       );
@@ -112,15 +118,15 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      data: product
+      data: tip
     });
 
   } catch (error) {
-    console.error('Error updating product:', error);
+    console.error('Error updating tip:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to update product',
+        error: 'Failed to update tip',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -128,7 +134,7 @@ export async function PUT(
   }
 }
 
-// Optional: Add DELETE method for deleting product
+// DELETE method for deleting tips (admin only - for future implementation)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -143,20 +149,20 @@ export async function DELETE(
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Invalid product ID format' 
+          error: 'Invalid tip ID format' 
         },
         { status: 400 }
       );
     }
 
-    // Delete product
-    const product = await Product.findByIdAndDelete(id);
+    // Delete tip
+    const tip = await Tip.findByIdAndDelete(id);
 
-    if (!product) {
+    if (!tip) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Product not found' 
+          error: 'Tip not found' 
         },
         { status: 404 }
       );
@@ -164,15 +170,15 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Product deleted successfully'
+      message: 'Tip deleted successfully'
     });
 
   } catch (error) {
-    console.error('Error deleting product:', error);
+    console.error('Error deleting tip:', error);
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to delete product',
+        error: 'Failed to delete tip',
         message: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }

@@ -1,6 +1,7 @@
 import connectDB from './mongodb';
 import Category from './models/Category';
 import Product from './models/Product';
+import Tip from './models/Tip';
 
 async function testConnection() {
   try {
@@ -16,14 +17,20 @@ async function testConnection() {
     // Count documents
     const categoryCount = await Category.countDocuments();
     const productCount = await Product.countDocuments();
+    const tipCount = await Tip.countDocuments();
     
     console.log(`📈 Database statistics:`);
     console.log(`   - Categories: ${categoryCount}`);
     console.log(`   - Products: ${productCount}`);
+    console.log(`   - Tips: ${tipCount}`);
 
     // Test a simple query
     const featuredProducts = await Product.find({ featured: true }).limit(3);
     console.log(`⭐ Featured products found: ${featuredProducts.length}`);
+
+    // Test tips query
+    const featuredTips = await Tip.find({ featured: true }).limit(3);
+    console.log(`💡 Featured tips found: ${featuredTips.length}`);
 
     // Test category with products
     const categoriesWithProducts = await Category.aggregate([

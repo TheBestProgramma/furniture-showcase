@@ -112,7 +112,6 @@ const ProductSchema: Schema = new Schema({
   sku: {
     type: String,
     required: [true, 'SKU is required'],
-    unique: true,
     trim: true
   },
   inStock: {
