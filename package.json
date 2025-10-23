@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "seed": "npx tsx src/lib/seed.ts",
-    "test-db": "npx tsx src/lib/test-connection.ts"
+    "test-db": "npx tsx src/lib/test-connection.ts",
+    "test-api": "node test-api.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
