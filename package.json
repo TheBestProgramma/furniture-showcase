@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "seed": "npx tsx src/lib/seed.ts",
+    "test-db": "npx tsx src/lib/test-connection.ts"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
     "next": "15.5.4",
@@ -21,6 +24,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }
