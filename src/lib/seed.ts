@@ -6,31 +6,56 @@ const categories = [
   {
     name: 'Sofas',
     description: 'Comfortable seating for your living room',
-    image: '/images/categories/sofas.jpg',
+    image: {
+      url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+      alt: 'Modern sofas in a living room',
+      width: 800,
+      height: 600
+    },
     sortOrder: 1
   },
   {
     name: 'Chairs',
     description: 'Dining chairs, office chairs, and accent chairs',
-    image: '/images/categories/chairs.jpg',
+    image: {
+      url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&auto=format',
+      alt: 'Various types of chairs',
+      width: 800,
+      height: 600
+    },
     sortOrder: 2
   },
   {
     name: 'Tables',
     description: 'Dining tables, coffee tables, and side tables',
-    image: '/images/categories/tables.jpg',
+    image: {
+      url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format',
+      alt: 'Modern dining table setup',
+      width: 800,
+      height: 600
+    },
     sortOrder: 3
   },
   {
     name: 'Beds',
     description: 'Bed frames, headboards, and bedroom furniture',
-    image: '/images/categories/beds.jpg',
+    image: {
+      url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+      alt: 'Modern bedroom with bed',
+      width: 800,
+      height: 600
+    },
     sortOrder: 4
   },
   {
     name: 'Storage',
     description: 'Cabinets, shelves, and storage solutions',
-    image: '/images/categories/storage.jpg',
+    image: {
+      url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+      alt: 'Storage cabinets and shelves',
+      width: 800,
+      height: 600
+    },
     sortOrder: 5
   }
 ];
@@ -44,9 +69,111 @@ const products = [
     originalPrice: 1599.99,
     category: 'sofas', // Will be replaced with ObjectId
     images: [
-      '/images/products/sofa-1-1.jpg',
-      '/images/products/sofa-1-2.jpg',
-      '/images/products/sofa-1-3.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 3',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 4',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 5',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 6',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 7',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 8',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 9',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 10',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 11',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 12',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 13',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 14',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 15',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 240, height: 85, depth: 180, weight: 120 },
     material: ['fabric', 'wood'],
@@ -72,8 +199,76 @@ const products = [
     price: 2199.99,
     category: 'sofas',
     images: [
-      '/images/products/chesterfield-1.jpg',
-      '/images/products/chesterfield-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 3',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 4',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 5',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 6',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 7',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 8',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 9',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 10',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 200, height: 90, depth: 95, weight: 85 },
     material: ['leather', 'wood'],
@@ -97,8 +292,20 @@ const products = [
     price: 899.99,
     category: 'sofas',
     images: [
-      '/images/products/minimalist-1.jpg',
-      '/images/products/minimalist-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 180, height: 75, depth: 85, weight: 65 },
     material: ['fabric', 'metal'],
@@ -122,8 +329,20 @@ const products = [
     originalPrice: 599.99,
     category: 'chairs',
     images: [
-      '/images/products/office-chair-1.jpg',
-      '/images/products/office-chair-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 65, height: 120, depth: 65, weight: 25 },
     material: ['fabric', 'metal', 'plastic'],
@@ -148,8 +367,20 @@ const products = [
     price: 399.99,
     category: 'chairs',
     images: [
-      '/images/products/dining-chairs-1.jpg',
-      '/images/products/dining-chairs-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 45, height: 95, depth: 50, weight: 12 },
     material: ['wood', 'fabric'],
@@ -171,8 +402,20 @@ const products = [
     price: 599.99,
     category: 'chairs',
     images: [
-      '/images/products/reading-chair-1.jpg',
-      '/images/products/reading-chair-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 80, height: 100, depth: 85, weight: 35 },
     material: ['fabric', 'wood'],
@@ -197,8 +440,20 @@ const products = [
     price: 1299.99,
     category: 'tables',
     images: [
-      '/images/products/oak-table-1.jpg',
-      '/images/products/oak-table-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 200, height: 75, depth: 100, weight: 80 },
     material: ['wood'],
@@ -221,8 +476,20 @@ const products = [
     price: 299.99,
     category: 'tables',
     images: [
-      '/images/products/glass-table-1.jpg',
-      '/images/products/glass-table-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 120, height: 45, depth: 60, weight: 20 },
     material: ['glass', 'metal'],
@@ -244,8 +511,20 @@ const products = [
     price: 799.99,
     category: 'tables',
     images: [
-      '/images/products/farmhouse-table-1.jpg',
-      '/images/products/farmhouse-table-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 180, height: 75, depth: 90, weight: 70 },
     material: ['wood'],
@@ -270,8 +549,20 @@ const products = [
     originalPrice: 1199.99,
     category: 'beds',
     images: [
-      '/images/products/platform-bed-1.jpg',
-      '/images/products/platform-bed-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 200, height: 30, depth: 220, weight: 150 },
     material: ['wood'],
@@ -296,8 +587,20 @@ const products = [
     price: 699.99,
     category: 'beds',
     images: [
-      '/images/products/upholstered-bed-1.jpg',
-      '/images/products/upholstered-bed-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 160, height: 120, depth: 200, weight: 80 },
     material: ['fabric', 'wood'],
@@ -319,8 +622,20 @@ const products = [
     price: 249.99,
     category: 'beds',
     images: [
-      '/images/products/metal-bed-1.jpg',
-      '/images/products/metal-bed-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 140, height: 25, depth: 190, weight: 35 },
     material: ['metal'],
@@ -344,8 +659,20 @@ const products = [
     price: 399.99,
     category: 'storage',
     images: [
-      '/images/products/tv-stand-1.jpg',
-      '/images/products/tv-stand-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 150, height: 45, depth: 40, weight: 45 },
     material: ['wood', 'metal'],
@@ -368,8 +695,20 @@ const products = [
     price: 199.99,
     category: 'storage',
     images: [
-      '/images/products/bookshelf-1.jpg',
-      '/images/products/bookshelf-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 80, height: 180, depth: 30, weight: 25 },
     material: ['wood'],
@@ -391,8 +730,20 @@ const products = [
     price: 799.99,
     category: 'storage',
     images: [
-      '/images/products/wardrobe-1.jpg',
-      '/images/products/wardrobe-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 120, height: 200, depth: 60, weight: 120 },
     material: ['wood'],
@@ -417,8 +768,20 @@ const products = [
     price: 1299.99,
     category: 'chairs',
     images: [
-      '/images/products/recliner-1.jpg',
-      '/images/products/recliner-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 90, height: 110, depth: 95, weight: 80 },
     material: ['leather', 'metal'],
@@ -441,8 +804,20 @@ const products = [
     price: 299.99,
     category: 'chairs',
     images: [
-      '/images/products/bar-stools-1.jpg',
-      '/images/products/bar-stools-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 40, height: 90, depth: 40, weight: 15 },
     material: ['metal', 'wood'],
@@ -464,8 +839,20 @@ const products = [
     price: 449.99,
     category: 'tables',
     images: [
-      '/images/products/nesting-tables-1.jpg',
-      '/images/products/nesting-tables-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 60, height: 45, depth: 40, weight: 12 },
     material: ['wood'],
@@ -487,8 +874,20 @@ const products = [
     price: 599.99,
     category: 'beds',
     images: [
-      '/images/products/bunk-bed-1.jpg',
-      '/images/products/bunk-bed-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 200, height: 160, depth: 100, weight: 100 },
     material: ['wood'],
@@ -511,8 +910,20 @@ const products = [
     price: 349.99,
     category: 'storage',
     images: [
-      '/images/products/corner-cabinet-1.jpg',
-      '/images/products/corner-cabinet-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 80, height: 180, depth: 80, weight: 50 },
     material: ['wood'],
@@ -534,8 +945,20 @@ const products = [
     price: 899.99,
     category: 'tables',
     images: [
-      '/images/products/executive-desk-1.jpg',
-      '/images/products/executive-desk-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 160, height: 75, depth: 80, weight: 60 },
     material: ['wood', 'metal'],
@@ -558,8 +981,20 @@ const products = [
     price: 699.99,
     category: 'tables',
     images: [
-      '/images/products/patio-set-1.jpg',
-      '/images/products/patio-set-2.jpg'
+      {
+        url: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 1',
+        width: 800,
+        height: 600,
+        isPrimary: true
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format',
+        alt: 'Product image 2',
+        width: 800,
+        height: 600,
+        isPrimary: false
+      }
     ],
     dimensions: { width: 120, height: 75, depth: 120, weight: 45 },
     material: ['metal', 'fabric'],

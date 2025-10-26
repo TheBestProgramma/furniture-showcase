@@ -1,19 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { Tip } from '@/lib/types/tips';
+import { Tip } from '@/hooks/useTips';
 
 interface TipCardProps {
   tip: Tip;
 }
 
 export default function TipCard({ tip }: TipCardProps) {
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
-    }).format(date);
+    }).format(dateObj);
   };
 
   const getCategoryColor = (color: string) => {
@@ -36,23 +37,23 @@ export default function TipCard({ tip }: TipCardProps) {
       {/* Image Section */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">
         <img
-          src={tip.image}
-          alt={tip.title}
+          src={typeof tip.image === 'string' ? tip.image : (tip.image as any)?.url}
+          alt={typeof tip.image === 'string' ? tip.title : ((tip.image as any)?.alt || tip.title)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
         
         {/* Overlay elements */}
         <div className="absolute top-3 left-3 rounded-full overflow-hidden">
-          <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium block ${getCategoryColor(tip.category.color)}`}
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800"
             style={{ 
               border: 'none', 
               outline: 'none',
               boxShadow: 'none'
             }}
           >
-            <span>{tip.category.icon}</span>
-            {tip.category.name}
+            <span>📝</span>
+            {tip.category}
           </span>
         </div>
         
@@ -84,7 +85,7 @@ export default function TipCard({ tip }: TipCardProps) {
             {tip.title}
           </h3>
           <p className="text-sm text-gray-600 capitalize">
-            {tip.category.name}
+            {tip.category}
           </p>
         </div>
 
@@ -129,11 +130,11 @@ export default function TipCard({ tip }: TipCardProps) {
 
         {/* Action Button */}
         <div className="flex items-center justify-between gap-2">
-          <div className="text-sm text-gray-600 flex-shrink-0">
+          <div className="text-sm text-gray-600 shrink-0">
             {tip.readTime} min read
           </div>
           <button 
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex-shrink-0"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 shrink-0"
           >
             Read More
           </button>

@@ -386,11 +386,11 @@ SettingsSchema.index({ createdAt: -1 });
 // Virtual for business hours summary
 SettingsSchema.virtual('businessHoursSummary').get(function() {
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  const openDays = days.filter(day => !this.businessHours[day].closed);
+  const openDays = days.filter(day => !(this.businessHours as any)[day].closed);
   return {
     openDays,
     totalOpenDays: openDays.length,
-    isOpenToday: this.isOpenToday()
+    isOpenToday: (this as any).isOpenToday()
   };
 });
 
@@ -399,18 +399,18 @@ SettingsSchema.virtual('shippingOptions').get(function() {
   return [
     {
       name: 'Standard Shipping',
-      rate: this.shipping.standardShippingRate,
-      estimatedDays: this.shipping.processingTime + 3
+      rate: (this.shipping as any).standardShippingRate,
+      estimatedDays: (this.shipping as any).processingTime + 3
     },
     {
       name: 'Express Shipping',
-      rate: this.shipping.expressShippingRate,
-      estimatedDays: this.shipping.processingTime + 1
+      rate: (this.shipping as any).expressShippingRate,
+      estimatedDays: (this.shipping as any).processingTime + 1
     },
     {
       name: 'International Shipping',
-      rate: this.shipping.internationalShippingRate,
-      estimatedDays: this.shipping.processingTime + 7
+      rate: (this.shipping as any).internationalShippingRate,
+      estimatedDays: (this.shipping as any).processingTime + 7
     }
   ];
 });

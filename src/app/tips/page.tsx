@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { mockTips, tipCategories, getFeaturedTips } from '@/lib/types/tips';
+import { useTips, Tip } from '@/hooks/useTips';
 import TipCard from '@/components/TipCard';
+import TipGridSkeleton from '@/components/TipGridSkeleton';
 
 export default function TipsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -12,53 +13,34 @@ export default function TipsPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage] = useState<number>(6);
 
-  // Filter and search tips
-  const filteredTips = useMemo(() => {
-    let tips = mockTips;
+  // Fetch tips from API
+  const { tips, loading, error, pagination, refetch } = useTips({
+    page: currentPage,
+    limit: itemsPerPage,
+    category: selectedCategory === 'all' ? undefined : selectedCategory,
+    search: searchTerm || undefined,
+    featured: undefined,
+    published: true,
+    sortBy: sortBy === 'newest' ? 'publishedAt' : sortBy === 'oldest' ? 'publishedAt' : sortBy === 'read-time' ? 'readTime' : 'featured',
+    sortOrder: sortBy === 'oldest' ? 'asc' : 'desc'
+  });
 
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      tips = tips.filter(tip => tip.category.slug === selectedCategory);
-    }
+  // Fetch featured tips
+  const { tips: featuredTips, loading: featuredLoading } = useTips({
+    featured: true,
+    limit: 3,
+    published: true,
+    sortBy: 'featured',
+    sortOrder: 'desc'
+  });
 
-    // Filter by search term
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      tips = tips.filter(tip => 
-        tip.title.toLowerCase().includes(searchLower) ||
-        tip.excerpt.toLowerCase().includes(searchLower) ||
-        tip.tags.some(tag => tag.toLowerCase().includes(searchLower)) ||
-        tip.author.toLowerCase().includes(searchLower)
-      );
-    }
+  // Debug logging
+  console.log('Tips page state:', { tips, loading, error, pagination });
 
-    // Sort tips
-    switch (sortBy) {
-      case 'newest':
-        tips.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
-      case 'oldest':
-        tips.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-        break;
-      case 'read-time':
-        tips.sort((a, b) => a.readTime - b.readTime);
-        break;
-      case 'featured':
-        tips.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-        break;
-      default:
-        break;
-    }
-
-    return tips;
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [selectedCategory, searchTerm, sortBy]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredTips.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedTips = filteredTips.slice(startIndex, startIndex + itemsPerPage);
-
-  const featuredTips = getFeaturedTips();
 
   const clearFilters = () => {
     setSelectedCategory('all');
@@ -98,12 +80,19 @@ export default function TipsPage() {
         </div>
 
         {/* Featured Tips Section */}
-        {featuredTips.length > 0 && (
+        {featuredLoading && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Tips</h2>
+            <TipGridSkeleton count={3} columns={3} />
+          </div>
+        )}
+
+        {!featuredLoading && featuredTips && featuredTips.length > 0 && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Tips</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredTips.slice(0, 3).map((tip) => (
-                <TipCard key={tip.id} tip={tip} />
+              {featuredTips.map((tip) => (
+                <TipCard key={tip._id} tip={tip} />
               ))}
             </div>
           </div>
@@ -140,11 +129,12 @@ export default function TipsPage() {
                 style={{ lineHeight: 'normal' }}
               >
                 <option value="all">All Categories</option>
-                {tipCategories.map((category) => (
-                  <option key={category.id} value={category.slug}>
-                    {category.icon} {category.name}
-                  </option>
-                ))}
+                <option value="maintenance">🧽 Maintenance</option>
+                <option value="styling">🎨 Styling</option>
+                <option value="care">💡 Care Tips</option>
+                <option value="organization">📦 Organization</option>
+                <option value="cleaning">✨ Cleaning</option>
+                <option value="repair">🔧 Repair</option>
               </select>
 
               {/* Sort */}
@@ -173,52 +163,86 @@ export default function TipsPage() {
           </div>
         </div>
 
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {filteredTips.length} Tips Found
-          </h2>
-          {(selectedCategory !== 'all' || searchTerm) && (
-            <div className="text-sm text-gray-600">
-              {selectedCategory !== 'all' && (
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 mr-2 inline-block"
-                  style={{ 
-                    borderRadius: '9999px',
-                    border: 'none', 
-                    outline: 'none',
-                    boxShadow: 'none'
-                  }}
-                >
-                  {tipCategories.find(c => c.slug === selectedCategory)?.name}
-                </span>
-              )}
-              {searchTerm && (
-                <span className="bg-green-100 text-green-800 px-2 py-1 inline-block"
-                  style={{ 
-                    borderRadius: '9999px',
-                    border: 'none', 
-                    outline: 'none',
-                    boxShadow: 'none'
-                  }}
-                >
-                  "{searchTerm}"
-                </span>
-              )}
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">Error loading tips</h3>
+            <p className="mt-1 text-sm text-gray-500">{error}</p>
+            <div className="mt-6 space-y-4">
+              <button
+                onClick={refetch}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Try Again
+              </button>
+              <div className="text-xs text-gray-500">
+                <p>If the error persists, please check:</p>
+                <ul className="mt-2 space-y-1">
+                  <li>• Database connection is working</li>
+                  <li>• Tips are seeded (run: npm run seed-tips)</li>
+                  <li>• Development server is running</li>
+                </ul>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <TipGridSkeleton count={itemsPerPage} columns={3} />
+        )}
+
+        {/* Results Header */}
+        {!loading && !error && (
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {pagination ? `${pagination.totalCount} Tips Found` : 'Loading...'}
+            </h2>
+            {(selectedCategory !== 'all' || searchTerm) && (
+              <div className="text-sm text-gray-600">
+                {selectedCategory !== 'all' && (
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 mr-2 inline-block"
+                    style={{ 
+                      borderRadius: '9999px',
+                      border: 'none', 
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
+                  >
+                    {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
+                  </span>
+                )}
+                {searchTerm && (
+                  <span className="bg-green-100 text-green-800 px-2 py-1 inline-block"
+                    style={{ 
+                      borderRadius: '9999px',
+                      border: 'none', 
+                      outline: 'none',
+                      boxShadow: 'none'
+                    }}
+                  >
+                    "{searchTerm}"
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Tips Grid */}
-        {paginatedTips.length > 0 ? (
+        {!loading && !error && tips && tips.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {paginatedTips.map((tip) => (
-                <TipCard key={tip.id} tip={tip} />
+              {tips.map((tip) => (
+                <TipCard key={tip._id} tip={tip} />
               ))}
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {pagination && pagination.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
@@ -228,7 +252,7 @@ export default function TipsPage() {
                   Previous
                 </button>
                 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
@@ -243,8 +267,8 @@ export default function TipsPage() {
                 ))}
                 
                 <button
-                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(Math.min(pagination.totalPages, currentPage + 1))}
+                  disabled={currentPage === pagination.totalPages}
                   className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
@@ -252,7 +276,10 @@ export default function TipsPage() {
               </div>
             )}
           </>
-        ) : (
+        )}
+
+        {/* No Tips Found */}
+        {!loading && !error && tips.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📚</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">

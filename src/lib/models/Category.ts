@@ -4,7 +4,12 @@ export interface ICategory extends Document {
   name: string;
   slug: string;
   description: string;
-  image: string;
+  image: {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+  };
   parentCategory?: mongoose.Types.ObjectId;
   subcategories: mongoose.Types.ObjectId[];
   isActive: boolean;
@@ -35,8 +40,20 @@ const CategorySchema: Schema = new Schema({
     maxlength: [500, 'Description cannot be more than 500 characters']
   },
   image: {
-    type: String,
-    required: [true, 'Category image is required']
+    url: {
+      type: String,
+      required: [true, 'Category image URL is required']
+    },
+    alt: {
+      type: String,
+      default: ''
+    },
+    width: {
+      type: Number
+    },
+    height: {
+      type: Number
+    }
   },
   parentCategory: {
     type: Schema.Types.ObjectId,
@@ -79,7 +96,7 @@ CategorySchema.index({ name: 'text', description: 'text' });
 // Virtual for full category path
 CategorySchema.virtual('fullPath').get(function() {
   if (this.parentCategory) {
-    return `${this.parentCategory.name} > ${this.name}`;
+    return `${(this.parentCategory as any).name} > ${this.name}`;
   }
   return this.name;
 });
@@ -91,12 +108,12 @@ CategorySchema.set('toObject', { virtuals: true });
 // Pre-save middleware to generate slug if not provided
 CategorySchema.pre('save', function(next) {
   if (!this.slug && this.name) {
-    this.slug = this.name
+    this.slug = (this.name as string)
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .trim('-');
+      .replace(/^-+|-+$/g, '');
   }
   next();
 });
@@ -104,12 +121,12 @@ CategorySchema.pre('save', function(next) {
 // Pre-validate middleware to ensure slug is always generated
 CategorySchema.pre('validate', function(next) {
   if (!this.slug && this.name) {
-    this.slug = this.name
+    this.slug = (this.name as string)
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .trim('-');
+      .replace(/^-+|-+$/g, '');
   }
   next();
 });

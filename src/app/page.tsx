@@ -3,6 +3,9 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import TestimonialsSection from '@/components/TestimonialsSection'
+import { useProducts } from '@/hooks/useProducts'
+import ProductCard from '@/components/ProductCard'
+import ProductGridSkeleton from '@/components/ProductGridSkeleton'
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -16,43 +19,22 @@ export default function Home() {
     { name: 'Wardrobe Doors', icon: '🚪', href: '/products?category=wardrobe', description: 'Custom wardrobe doors and systems' },
   ]
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: 'Premium Leather Sofa',
-      price: 'KES 45,000',
-      image: '🛋️',
-      description: 'Luxurious 3-seater leather sofa with premium comfort'
-    },
-    {
-      id: 2,
-      name: 'Modern Dining Set',
-      price: 'KES 35,000',
-      image: '🪑',
-      description: '6-seater dining table with matching chairs'
-    },
-    {
-      id: 3,
-      name: 'King Size Bed Frame',
-      price: 'KES 25,000',
-      image: '🛏️',
-      description: 'Solid wood king size bed with storage drawers'
-    },
-    {
-      id: 4,
-      name: 'Coffee Table Set',
-      price: 'KES 15,000',
-      image: '☕',
-      description: 'Glass top coffee table with matching side tables'
-    }
-  ]
+  // Fetch featured products from API
+  const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useProducts({
+    featured: true,
+    limit: 4,
+    sortBy: 'featured',
+    sortOrder: 'desc'
+  })
 
   // Auto-rotate carousel
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredProducts.length)
-    }, 5000)
-    return () => clearInterval(timer)
+    if (featuredProducts.length > 0) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % featuredProducts.length)
+      }, 5000)
+      return () => clearInterval(timer)
+    }
   }, [featuredProducts.length])
 
   return (
@@ -129,71 +111,51 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Carousel Container */}
-          <div className="relative px-8 md:px-16">
-            <div className="overflow-hidden rounded-3xl">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-              >
-                {featuredProducts.map((product) => (
-                  <div key={product.id} className="w-full flex-shrink-0">
-                    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mx-4 md:mx-8 border-4 border-primary-100 hover:border-primary-300 transition-all duration-300">
-                      <div className="md:flex">
-                        <div className="md:w-1/2 bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300 p-8 md:p-16 flex items-center justify-center relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
-                          <div className="text-8xl md:text-9xl relative z-10 drop-shadow-lg">{product.image}</div>
-                        </div>
-                        <div className="md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-gradient-to-br from-white to-primary-50">
-                          <h3 className="text-3xl md:text-4xl font-bold text-secondary-900 mb-6">{product.name}</h3>
-                          <p className="text-lg md:text-xl text-secondary-600 mb-8 leading-relaxed">{product.description}</p>
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8">
-                            <span className="text-4xl md:text-5xl font-bold text-primary-600 drop-shadow-sm">{product.price}</span>
-                            <button className="bg-white text-black px-8 md:px-10 py-4 rounded-2xl hover:bg-primary-50 transition-all duration-300 font-bold text-lg shadow-xl hover:shadow-2xl w-full sm:w-auto transform hover:scale-105 border-2 border-primary-600">
-                              Add to Cart
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Loading State */}
+          {featuredLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <ProductGridSkeleton count={4} columns={1} />
             </div>
+          )}
 
-            {/* Carousel Navigation */}
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length)}
-              className="absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2 bg-white hover:bg-primary-50 text-primary-600 p-4 md:p-5 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 z-20 border-4 border-primary-200 hover:border-primary-400"
-            >
-              <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          {/* Error State */}
+          {featuredError && (
+            <div className="text-center py-12">
+              <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
-            </button>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % featuredProducts.length)}
-              className="absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2 bg-white hover:bg-primary-50 text-primary-600 p-4 md:p-5 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 z-20 border-4 border-primary-200 hover:border-primary-400"
-            >
-              <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">Error loading featured products</h3>
+              <p className="mt-1 text-sm text-gray-500">{featuredError}</p>
+            </div>
+          )}
 
-          {/* Carousel Indicators */}
-          <div className="flex justify-center mt-12 space-x-4">
-            {featuredProducts.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`rounded-full transition-all duration-300 ${
-                  index === currentSlide 
-                    ? 'bg-primary-600 w-12 h-4 shadow-xl' 
-                    : 'bg-gray-300 w-4 h-4 hover:bg-primary-400 hover:scale-125'
-                }`}
-              />
-            ))}
-          </div>
+          {/* Featured Products Grid */}
+          {!featuredLoading && !featuredError && featuredProducts.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          )}
+
+          {/* No Featured Products */}
+          {!featuredLoading && !featuredError && featuredProducts.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📦</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No featured products available
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Check back soon for our featured furniture collection.
+              </p>
+              <Link
+                href="/products"
+                className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                View All Products
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

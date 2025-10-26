@@ -1,146 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getCategoryBySlug, categories } from '@/lib/types/categories';
-import { IFurniture } from '@/lib/models/Furniture';
-
-// Common interface for furniture data (used by both mock data and components)
-interface FurnitureData {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  material: string;
-  dimensions: {
-    width: number;
-    height: number;
-    depth: number;
-  };
-  color: string;
-  images: string[];
-  inStock: boolean;
-  featured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { useProducts } from '@/hooks/useProducts';
+import { useCategories } from '@/hooks/useCategories';
 import CategoryBanner from '@/components/CategoryBanner';
 import CategorySidebar from '@/components/CategorySidebar';
 import ProductCard from '@/components/ProductCard';
-
-// Mock products data - in a real app, this would come from an API
-const mockProducts: FurnitureData[] = [
-  {
-    _id: '1',
-    name: 'Modern Platform Bed',
-    description: 'Sleek and minimalist platform bed with built-in nightstands',
-    price: 45000,
-    category: 'beds',
-    material: 'Oak Wood',
-    dimensions: { width: 160, height: 20, depth: 200 },
-    color: 'Natural Oak',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-    ],
-    inStock: true,
-    featured: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: '2',
-    name: 'Luxury Sectional Sofa',
-    description: 'Spacious L-shaped sectional sofa perfect for family gatherings',
-    price: 85000,
-    category: 'sofas',
-    material: 'Premium Fabric',
-    dimensions: { width: 300, height: 85, depth: 200 },
-    color: 'Charcoal Gray',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-    ],
-    inStock: true,
-    featured: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: '3',
-    name: 'Dining Table Set',
-    description: 'Elegant 6-seater dining table with matching chairs',
-    price: 65000,
-    category: 'dining',
-    material: 'Mahogany Wood',
-    dimensions: { width: 180, height: 75, depth: 90 },
-    color: 'Rich Mahogany',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-    ],
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: '4',
-    name: 'Storage Bookshelf',
-    description: '5-tier bookshelf with adjustable shelves and storage compartments',
-    price: 25000,
-    category: 'storage',
-    material: 'Pine Wood',
-    dimensions: { width: 80, height: 180, depth: 30 },
-    color: 'Natural Pine',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-    ],
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: '5',
-    name: 'Executive Office Desk',
-    description: 'Spacious executive desk with built-in drawers and cable management',
-    price: 55000,
-    category: 'office',
-    material: 'Walnut Wood',
-    dimensions: { width: 150, height: 75, depth: 80 },
-    color: 'Dark Walnut',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-    ],
-    inStock: true,
-    featured: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    _id: '6',
-    name: 'Patio Dining Set',
-    description: 'Weather-resistant outdoor dining set for 4 people',
-    price: 35000,
-    category: 'outdoor',
-    material: 'Teak Wood',
-    dimensions: { width: 120, height: 75, depth: 120 },
-    color: 'Natural Teak',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop'
-    ],
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
+import ProductGridSkeleton from '@/components/ProductGridSkeleton';
 
 export default function CategoryPage() {
   const params = useParams();
@@ -153,43 +21,44 @@ export default function CategoryPage() {
   const categorySlug = params.slug as string;
   const subcategory = searchParams.get('subcategory');
   
-  const category = getCategoryBySlug(categorySlug);
+  // Fetch categories to find the current category
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const currentCategory = categories.find(cat => cat.slug === categorySlug);
 
-  // Filter products by category
-  const filteredProducts = useMemo(() => {
-    let products = mockProducts.filter(product => product.category === categorySlug);
-    
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-low':
-        products.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        products.sort((a, b) => b.price - a.price);
-        break;
-      case 'newest':
-        products.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
-      case 'featured':
-      default:
-        products.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
-        break;
-    }
+  // Fetch products for this category
+  const { products, loading: productsLoading, error: productsError, pagination, refetch } = useProducts({
+    page: currentPage,
+    limit: itemsPerPage,
+    category: categorySlug,
+    minPrice: priceRange[0],
+    maxPrice: priceRange[1],
+    sortBy: sortBy === 'price-low' ? 'price' : sortBy === 'price-high' ? 'price' : sortBy === 'newest' ? 'createdAt' : 'featured',
+    sortOrder: sortBy === 'price-high' ? 'desc' : 'asc'
+  });
 
-    // Apply price filter
-    products = products.filter(product => 
-      product.price >= priceRange[0] && product.price <= priceRange[1]
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortBy, priceRange]);
+
+  if (categoriesError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Category</h1>
+          <p className="text-gray-600 mb-6">{categoriesError}</p>
+          <Link
+            href="/categories"
+            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Browse All Categories
+          </Link>
+        </div>
+      </div>
     );
+  }
 
-    return products;
-  }, [categorySlug, sortBy, priceRange]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
-
-  if (!category) {
+  if (!categoriesLoading && !currentCategory) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -220,12 +89,12 @@ export default function CategoryPage() {
               <Link href="/categories" className="hover:text-gray-700">Categories</Link>
             </li>
             <li>/</li>
-            <li className="text-gray-900 font-medium">{category.name}</li>
+            <li className="text-gray-900 font-medium">{currentCategory?.name}</li>
           </ol>
         </nav>
 
         {/* Category Banner */}
-        <CategoryBanner category={category} />
+        {currentCategory && <CategoryBanner category={currentCategory} />}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
@@ -240,7 +109,7 @@ export default function CategoryPage() {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <h2 className="text-lg font-semibold text-gray-900">
-                    {filteredProducts.length} Products
+                    {productsLoading ? 'Loading...' : `${products.length} Products`}
                   </h2>
                   {subcategory && (
                     <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
@@ -282,17 +151,41 @@ export default function CategoryPage() {
               </div>
             </div>
 
+            {/* Error State */}
+            {productsError && (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">Error loading products</h3>
+                <p className="mt-1 text-sm text-gray-500">{productsError}</p>
+                <div className="mt-6">
+                  <button
+                    onClick={refetch}
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {productsLoading && (
+              <ProductGridSkeleton count={itemsPerPage} columns={3} />
+            )}
+
             {/* Products Grid */}
-            {paginatedProducts.length > 0 ? (
+            {!productsLoading && !productsError && products.length > 0 && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                  {paginatedProducts.map((product) => (
+                  {products.map((product) => (
                     <ProductCard key={product._id} product={product} />
                   ))}
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {pagination && pagination.totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2">
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -302,7 +195,7 @@ export default function CategoryPage() {
                       Previous
                     </button>
                     
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
@@ -317,8 +210,8 @@ export default function CategoryPage() {
                     ))}
                     
                     <button
-                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(Math.min(pagination.totalPages, currentPage + 1))}
+                      disabled={currentPage === pagination.totalPages}
                       className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
@@ -326,9 +219,12 @@ export default function CategoryPage() {
                   </div>
                 )}
               </>
-            ) : (
+            )}
+
+            {/* No Products Found */}
+            {!productsLoading && !productsError && products.length === 0 && (
               <div className="text-center py-12">
-                <div className="text-6xl mb-4">{category.icon}</div>
+                <div className="text-6xl mb-4">{currentCategory?.icon || '📦'}</div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   No products found
                 </h3>

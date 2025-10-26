@@ -241,10 +241,10 @@ OrderSchema.index({ 'customer.name': 'text' });
 // Virtual for order summary
 OrderSchema.virtual('orderSummary').get(function() {
   return {
-    itemCount: this.items.reduce((total, item) => total + item.quantity, 0),
-    totalItems: this.items.length,
-    statusText: this.status.charAt(0).toUpperCase() + this.status.slice(1),
-    paymentText: this.paymentStatus.charAt(0).toUpperCase() + this.paymentStatus.slice(1)
+    itemCount: (this.items as any[]).reduce((total, item) => total + item.quantity, 0),
+    totalItems: (this.items as any[]).length,
+    statusText: (this.status as string).charAt(0).toUpperCase() + (this.status as string).slice(1),
+    paymentText: (this.paymentStatus as string).charAt(0).toUpperCase() + (this.paymentStatus as string).slice(1)
   };
 });
 
@@ -254,19 +254,19 @@ OrderSchema.virtual('timeline').get(function() {
     { status: 'Order Placed', date: this.createdAt, completed: true }
   ];
 
-  if (this.status !== 'pending') {
+  if ((this.status as string) !== 'pending') {
     timeline.push({ status: 'Order Confirmed', date: this.updatedAt, completed: true });
   }
 
-  if (['processing', 'shipped', 'delivered'].includes(this.status)) {
+  if (['processing', 'shipped', 'delivered'].includes(this.status as string)) {
     timeline.push({ status: 'Processing', date: this.updatedAt, completed: true });
   }
 
-  if (['shipped', 'delivered'].includes(this.status)) {
+  if (['shipped', 'delivered'].includes(this.status as string)) {
     timeline.push({ status: 'Shipped', date: this.updatedAt, completed: true });
   }
 
-  if (this.status === 'delivered') {
+  if ((this.status as string) === 'delivered') {
     timeline.push({ status: 'Delivered', date: this.deliveredAt, completed: true });
   }
 

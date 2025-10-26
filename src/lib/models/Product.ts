@@ -7,7 +7,13 @@ export interface IProduct extends Document {
   originalPrice?: number;
   category: mongoose.Types.ObjectId;
   subcategory?: string;
-  images: string[];
+  images: {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+    isPrimary?: boolean;
+  }[];
   dimensions: {
     width: number;
     height: number;
@@ -68,8 +74,24 @@ const ProductSchema: Schema = new Schema({
     trim: true
   },
   images: [{
-    type: String,
-    required: [true, 'At least one image is required']
+    url: {
+      type: String,
+      required: [true, 'Image URL is required']
+    },
+    alt: {
+      type: String,
+      default: ''
+    },
+    width: {
+      type: Number
+    },
+    height: {
+      type: Number
+    },
+    isPrimary: {
+      type: Boolean,
+      default: false
+    }
   }],
   dimensions: {
     width: {

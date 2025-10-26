@@ -39,9 +39,12 @@ export async function GET(
     }
 
     // Get related products (same category, excluding current product)
+    const productWithCategory = product as any;
+    const categoryId = productWithCategory.category?._id || productWithCategory.category;
+    
     const relatedProducts = await Product.find({
-      category: product.category._id,
-      _id: { $ne: product._id }
+      category: categoryId,
+      _id: { $ne: productWithCategory._id }
     })
       .populate('category', 'name slug')
       .limit(4)

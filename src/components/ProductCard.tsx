@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useCartStore } from '@/store/cartStore';
 import { IFurniture } from '@/lib/models/Furniture';
 
 // Common interface for furniture data (used by both mock data and components)
@@ -9,7 +10,11 @@ interface FurnitureData {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: string | {
+    _id: string;
+    name: string;
+    slug: string;
+  };
   material: string;
   dimensions: {
     width: number;
@@ -17,11 +22,20 @@ interface FurnitureData {
     depth: number;
   };
   color: string;
-  images: string[];
+  images: string[] | {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+    isPrimary?: boolean;
+  }[];
   inStock: boolean;
   featured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  onSale?: boolean;
+  salePrice?: number;
+  tags?: string[];
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 interface ProductCardProps {
@@ -30,6 +44,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
+  const { addItem, getItemQuantity } = useCartStore();
 
   const formatPrice = (price: number) => {
     return `KSh ${price.toLocaleString('en-KE')}`;
@@ -45,7 +60,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="relative h-64 bg-gray-100 group overflow-hidden">
         {product.images && product.images.length > 0 ? (
           <img
-            src={product.images[0]}
+            src={typeof product.images[0] === 'string' ? product.images[0] : (product.images[0] as any)?.url}
             alt={product.name}
             className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:brightness-75"
           />
@@ -127,7 +142,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
           <p className="text-sm text-gray-600 capitalize">
-            {product.category}
+            {typeof product.category === 'string' ? product.category : product.category.name}
           </p>
         </div>
 
@@ -153,18 +168,44 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Price and Action */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-lg font-bold text-gray-900 flex-shrink-0">
+        {/* Price and Actions */}
+        <div className="space-y-3">
+          <div className="text-lg font-bold text-gray-900">
             {formatPrice(product.price)}
           </div>
-          <button 
-            onClick={() => router.push(`/products/${product._id}`)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
-            disabled={!product.inStock}
-          >
-            {product.inStock ? 'View Details' : 'Unavailable'}
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => router.push(`/products/${product._id}`)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={!product.inStock}
+            >
+              {product.inStock ? 'View Details' : 'Unavailable'}
+            </button>
+            {product.inStock && (
+              <button 
+                onClick={() => addItem({
+                  id: product._id,
+                  name: product.name,
+                  price: product.price,
+                  color: product.color,
+                  image: typeof product.images[0] === 'string' ? product.images[0] : ((product.images[0] as any)?.url || ''),
+                  category: typeof product.category === 'string' ? product.category : product.category.name,
+                  inStock: product.inStock
+                })}
+                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                </svg>
+                Add
+              </button>
+            )}
+          </div>
+          {getItemQuantity(product._id) > 0 && (
+            <div className="text-sm text-green-600 font-medium">
+              {getItemQuantity(product._id)} in cart
+            </div>
+          )}
         </div>
       </div>
     </div>

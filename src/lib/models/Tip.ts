@@ -11,7 +11,12 @@ export interface ITip extends Document {
   featured: boolean;
   published: boolean;
   publishedAt?: Date;
-  image: string;
+  image: {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+  };
   readTime: number; // in minutes
   views: number;
   likes: number;
@@ -85,8 +90,20 @@ const TipSchema: Schema = new Schema({
     default: null
   },
   image: {
-    type: String,
-    required: [true, 'Tip image is required']
+    url: {
+      type: String,
+      required: [true, 'Tip image URL is required']
+    },
+    alt: {
+      type: String,
+      default: ''
+    },
+    width: {
+      type: Number
+    },
+    height: {
+      type: Number
+    }
   },
   readTime: {
     type: Number,
@@ -133,17 +150,17 @@ TipSchema.index({ title: 'text', content: 'text', excerpt: 'text' });
 TipSchema.virtual('readingProgress').get(function() {
   return {
     estimatedTime: this.readTime,
-    difficulty: this.readTime <= 5 ? 'Quick Read' : 
-               this.readTime <= 15 ? 'Medium Read' : 'Long Read'
+    difficulty: (this.readTime as number) <= 5 ? 'Quick Read' : 
+               (this.readTime as number) <= 15 ? 'Medium Read' : 'Long Read'
   };
 });
 
 // Virtual for engagement metrics
 TipSchema.virtual('engagement').get(function() {
-  const totalInteractions = this.views + this.likes;
+  const totalInteractions = (this.views as number) + (this.likes as number);
   return {
     totalInteractions,
-    engagementRate: this.views > 0 ? (this.likes / this.views) * 100 : 0
+    engagementRate: (this.views as number) > 0 ? ((this.likes as number) / (this.views as number)) * 100 : 0
   };
 });
 
@@ -154,12 +171,12 @@ TipSchema.set('toObject', { virtuals: true });
 // Pre-save middleware to generate slug if not provided
 TipSchema.pre('save', function(next) {
   if (!this.slug && this.title) {
-    this.slug = this.title
+    this.slug = (this.title as string)
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .trim('-');
+      .replace(/^-+|-+$/g, '');
   }
   
   // Set publishedAt when publishing
@@ -173,12 +190,12 @@ TipSchema.pre('save', function(next) {
 // Pre-validate middleware to ensure slug is always generated
 TipSchema.pre('validate', function(next) {
   if (!this.slug && this.title) {
-    this.slug = this.title
+    this.slug = (this.title as string)
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .trim('-');
+      .replace(/^-+|-+$/g, '');
   }
   next();
 });
