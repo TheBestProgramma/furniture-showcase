@@ -315,3 +315,4 @@ module.exports = {
   testCodeQuality,
   testIntegration
 };
+

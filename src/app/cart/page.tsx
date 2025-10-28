@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { useState } from 'react';
+import { QuickWhatsAppButton } from '@/components/WhatsAppButton';
 
 export default function CartPage() {
   const router = useRouter();
@@ -129,7 +130,7 @@ export default function CartPage() {
                     {/* Mobile Layout */}
                     <div className="md:hidden space-y-4">
                       <div className="flex gap-4">
-                        <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                           <img
                             src={item.image}
                             alt={item.name}
@@ -183,7 +184,7 @@ export default function CartPage() {
                     {/* Desktop Layout */}
                     <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
                       <div className="col-span-5 flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                           <img
                             src={item.image}
                             alt={item.name}
@@ -285,10 +286,16 @@ export default function CartPage() {
 
               <button
                 onClick={handleCheckout}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors duration-200 mb-4"
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors duration-200 mb-3"
               >
                 Proceed to Checkout
               </button>
+
+              <QuickWhatsAppButton
+                items={items}
+                total={totalPrice}
+                className="w-full mb-3"
+              />
               
               <button
                 onClick={() => router.push('/products')}

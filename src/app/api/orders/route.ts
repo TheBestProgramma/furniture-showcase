@@ -169,9 +169,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Calculate totals (simplified - in real app, use tax calculation service)
-    const tax = subtotal * 0.08; // 8% tax
-    const shipping = subtotal > 100 ? 0 : 15; // Free shipping over $100
+    // Calculate totals (Kenyan market pricing)
+    const tax = Math.round(subtotal * 0.16); // 16% VAT
+    const shipping = subtotal >= 100000 ? 0 : 15000; // Free shipping over KSh 100,000
     const discount = 0; // Could be calculated from coupons
     const total = subtotal + tax + shipping - discount;
 
@@ -219,4 +219,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 

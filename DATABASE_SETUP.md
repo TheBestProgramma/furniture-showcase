@@ -89,3 +89,5 @@ The seed data includes a variety of furniture products across all categories:
 3. Run the seeding script
 4. Test the connection
 5. Start building your furniture showcase application!
+
+
