@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const folder = formData.get('folder') as string || 'uploads';
+    const folder = formData.get('folder') as string || 'furniture-showcase';
 
     if (!file) {
       return NextResponse.json(
@@ -32,23 +39,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const filename = `${folder}/${timestamp}-${file.name}`;
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    // Upload to Vercel Blob Storage
-    const blob = await put(filename, file, {
-      access: 'public',
-      contentType: file.type,
+    // Upload to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: folder,
+          resource_type: 'auto',
+          quality: 'auto',
+          fetch_format: 'auto',
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(buffer);
     });
 
     return NextResponse.json({
       success: true,
       data: {
-        url: blob.url,
-        filename: filename,
+        url: (result as any).secure_url,
+        public_id: (result as any).public_id,
+        width: (result as any).width,
+        height: (result as any).height,
         size: file.size,
         type: file.type,
+        folder: folder,
       }
     });
 
@@ -65,27 +85,33 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Handle DELETE requests to remove images
+// Handle DELETE requests to remove images from Cloudinary
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const url = searchParams.get('url');
+    const publicId = searchParams.get('public_id');
 
-    if (!url) {
+    if (!publicId) {
       return NextResponse.json(
-        { success: false, error: 'No URL provided' },
+        { success: false, error: 'No public_id provided' },
         { status: 400 }
       );
     }
 
-    // Note: Vercel Blob doesn't have a direct delete method in the SDK
-    // You might need to implement this using Vercel's API or handle it differently
-    // For now, we'll return success but the file won't actually be deleted
+    // Delete from Cloudinary
+    const result = await cloudinary.uploader.destroy(publicId);
     
-    return NextResponse.json({
-      success: true,
-      message: 'Delete request received (implementation needed)'
-    });
+    if (result.result === 'ok') {
+      return NextResponse.json({
+        success: true,
+        message: 'Image deleted successfully'
+      });
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Failed to delete image' },
+        { status: 400 }
+      );
+    }
 
   } catch (error) {
     console.error('Delete error:', error);
@@ -99,5 +125,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-
-

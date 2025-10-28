@@ -46,7 +46,10 @@ function checkRequiredEnvVars(envVars) {
     'NEXTAUTH_SECRET',
     'NEXTAUTH_URL',
     'MONGODB_URI',
-    'MONGODB_DB'
+    'MONGODB_DB',
+    'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET'
   ];
 
   const missingVars = [];

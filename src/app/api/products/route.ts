@@ -121,4 +121,261 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    await connectDB();
+
+    const body = await request.json();
+    console.log('Received product data:', body);
+    const {
+      name,
+      description,
+      price,
+      category,
+      subcategory,
+      brand,
+      material,
+      dimensions,
+      weight,
+      color,
+      inStock,
+      stockQuantity,
+      images,
+      features,
+      tags,
+      isActive,
+      isFeatured,
+      discount,
+      sku,
+      rating,
+      reviewCount
+    } = body;
+
+    // Validate required fields
+    if (!name || !description || !price || !category || !sku) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Missing required fields',
+          message: 'Name, description, price, category, and SKU are required'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate material if provided
+    const validMaterials = ['wood', 'metal', 'fabric', 'leather', 'plastic', 'glass', 'ceramic', 'stone', 'mixed'];
+    if (material && !validMaterials.includes(material)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid material',
+          message: `Material must be one of: ${validMaterials.join(', ')}`
+        },
+        { status: 400 }
+      );
+    }
+
+    // Handle category - if it's a string, try to find or create the category
+    let categoryId = category;
+    if (typeof category === 'string') {
+      let categoryDoc = await Category.findOne({ 
+        $or: [
+          { name: category },
+          { slug: category.toLowerCase().replace(/\s+/g, '-') }
+        ]
+      });
+      
+      if (!categoryDoc) {
+        // Create a new category if it doesn't exist
+        categoryDoc = new Category({
+          name: category,
+          slug: category.toLowerCase().replace(/\s+/g, '-'),
+          description: `Products in the ${category} category`,
+          image: {
+            url: 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(category),
+            alt: category
+          },
+          isActive: true,
+          sortOrder: 0
+        });
+        await categoryDoc.save();
+      }
+      categoryId = categoryDoc._id;
+    }
+
+    // Check if product with same SKU already exists
+    const existingProduct = await Product.findOne({ sku });
+    if (existingProduct) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'SKU already exists',
+          message: 'A product with this SKU already exists'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Create new product
+    const product = new Product({
+      name,
+      description,
+      price,
+      category: categoryId,
+      subcategory,
+      brand,
+      material: material ? [material] : ['mixed'],
+      dimensions: {
+        width: dimensions?.width || 0,
+        height: dimensions?.height || 0,
+        depth: dimensions?.length || 0,
+        weight: weight || 0
+      },
+      color: color || 'Unknown',
+      inStock: inStock !== undefined ? inStock : true,
+      stockQuantity: stockQuantity || 0,
+      images: images ? images.map((url: string) => ({ url, isPrimary: false })) : [],
+      tags: tags || [],
+      featured: isFeatured || false,
+      onSale: discount > 0,
+      discountPercentage: discount || 0,
+      sku,
+      rating: {
+        average: rating || 0,
+        count: reviewCount || 0
+      },
+      reviews: []
+    });
+
+    await product.save();
+
+    return NextResponse.json({
+      success: true,
+      data: product,
+      message: 'Product created successfully'
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to create product',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    await connectDB();
+
+    const body = await request.json();
+    const { _id, ...updateData } = body;
+
+    if (!_id) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Product ID is required',
+          message: 'Product ID is required for updates'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if product exists
+    const existingProduct = await Product.findById(_id);
+    if (!existingProduct) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Product not found',
+          message: 'Product with this ID does not exist'
+        },
+        { status: 404 }
+      );
+    }
+
+    // Update product
+    const updatedProduct = await Product.findByIdAndUpdate(
+      _id,
+      { ...updateData, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
+
+    return NextResponse.json({
+      success: true,
+      data: updatedProduct,
+      message: 'Product updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to update product',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    await connectDB();
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Product ID is required',
+          message: 'Product ID is required for deletion'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if product exists
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Product not found',
+          message: 'Product with this ID does not exist'
+        },
+        { status: 404 }
+      );
+    }
+
+    // Delete product
+    await Product.findByIdAndDelete(id);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to delete product',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}
+
 
