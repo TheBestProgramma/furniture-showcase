@@ -254,3 +254,4 @@ Total: ${formatPrice(total)}
 Please provide your details for delivery.`;
   }
 };
+

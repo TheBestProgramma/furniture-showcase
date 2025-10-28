@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Ensure environment variables are loaded properly
+  env: {
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    MONGODB_URI: process.env.MONGODB_URI,
+    MONGODB_DB: process.env.MONGODB_DB,
+  },
   images: {
     remotePatterns: [
       {

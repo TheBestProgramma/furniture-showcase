@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Modern Sofa Set",
+    "slug": "modern-sofa-set",
+    "description": "Comfortable 3-seater sofa with matching cushions",
+    "price": 45000,
+    "originalPrice": 55000,
+    "category": "mh9vlkdb6h5evhmr4jf",
+    "images": [
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800"
+    ],
+    "inStock": true,
+    "stockQuantity": 10,
+    "featured": true,
+    "onSale": true,
+    "tags": [
+      "sofa",
+      "living room",
+      "modern",
+      "comfortable"
+    ],
+    "dimensions": {
+      "length": 200,
+      "width": 80,
+      "height": 85
+    },
+    "weight": 45,
+    "material": "Fabric",
+    "color": "Gray",
+    "brand": "FurnitureCo",
+    "_id": "mh9vlke967ragetstdx",
+    "createdAt": "2025-10-28T01:16:19.713Z"
+  },
+  {
+    "name": "King Size Bed",
+    "slug": "king-size-bed",
+    "description": "Elegant king size bed with storage drawers",
+    "price": 75000,
+    "originalPrice": 85000,
+    "category": "mh9vlkdqo6jzbn3dk4l",
+    "images": [
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800"
+    ],
+    "inStock": true,
+    "stockQuantity": 5,
+    "featured": true,
+    "onSale": true,
+    "tags": [
+      "bed",
+      "bedroom",
+      "king size",
+      "storage"
+    ],
+    "dimensions": {
+      "length": 200,
+      "width": 180,
+      "height": 60
+    },
+    "weight": 80,
+    "material": "Wood",
+    "color": "Brown",
+    "brand": "SleepWell",
+    "_id": "mh9vlkef3q5m5q2c7ba",
+    "createdAt": "2025-10-28T01:16:19.719Z"
+  },
+  {
+    "name": "Dining Table Set",
+    "slug": "dining-table-set",
+    "description": "6-seater dining table with matching chairs",
+    "price": 65000,
+    "originalPrice": 75000,
+    "category": "mh9vlkduqvairiwiph",
+    "images": [
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800"
+    ],
+    "inStock": true,
+    "stockQuantity": 8,
+    "featured": false,
+    "onSale": true,
+    "tags": [
+      "dining table",
+      "chairs",
+      "dining room",
+      "wood"
+    ],
+    "dimensions": {
+      "length": 180,
+      "width": 90,
+      "height": 75
+    },
+    "weight": 60,
+    "material": "Wood",
+    "color": "Oak",
+    "brand": "DineElegant",
+    "_id": "mh9vlken5lo3edpwkp",
+    "createdAt": "2025-10-28T01:16:19.727Z"
+  },
+  {
+    "name": "Office Desk",
+    "slug": "office-desk",
+    "description": "Spacious office desk with drawers and cable management",
+    "price": 35000,
+    "originalPrice": 40000,
+    "category": "mh9vlkdyh768js9xzq",
+    "images": [
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800"
+    ],
+    "inStock": true,
+    "stockQuantity": 12,
+    "featured": false,
+    "onSale": true,
+    "tags": [
+      "desk",
+      "office",
+      "work",
+      "modern"
+    ],
+    "dimensions": {
+      "length": 120,
+      "width": 60,
+      "height": 75
+    },
+    "weight": 25,
+    "material": "Wood",
+    "color": "White",
+    "brand": "WorkSpace",
+    "_id": "mh9vlkesdk70ojhr805",
+    "createdAt": "2025-10-28T01:16:19.732Z"
+  },
+  {
+    "name": "Coffee Table",
+    "slug": "coffee-table",
+    "description": "Modern glass coffee table with metal legs",
+    "price": 25000,
+    "originalPrice": 30000,
+    "category": "mh9vlkdb6h5evhmr4jf",
+    "images": [
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800"
+    ],
+    "inStock": true,
+    "stockQuantity": 15,
+    "featured": false,
+    "onSale": true,
+    "tags": [
+      "coffee table",
+      "living room",
+      "glass",
+      "modern"
+    ],
+    "dimensions": {
+      "length": 100,
+      "width": 50,
+      "height": 40
+    },
+    "weight": 15,
+    "material": "Glass & Metal",
+    "color": "Clear",
+    "brand": "ModernHome",
+    "_id": "mh9vlkexxgygni5yotf",
+    "createdAt": "2025-10-28T01:16:19.737Z"
+  }
+]

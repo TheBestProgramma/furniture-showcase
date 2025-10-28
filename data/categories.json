@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Living Room",
+    "slug": "living-room",
+    "description": "Comfortable furniture for your living space",
+    "image": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500",
+    "isActive": true,
+    "_id": "mh9vlkdb6h5evhmr4jf",
+    "createdAt": "2025-10-28T01:16:19.679Z"
+  },
+  {
+    "name": "Bedroom",
+    "slug": "bedroom",
+    "description": "Bedroom furniture for a good night's sleep",
+    "image": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500",
+    "isActive": true,
+    "_id": "mh9vlkdqo6jzbn3dk4l",
+    "createdAt": "2025-10-28T01:16:19.694Z"
+  },
+  {
+    "name": "Dining Room",
+    "slug": "dining-room",
+    "description": "Elegant dining furniture for family meals",
+    "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500",
+    "isActive": true,
+    "_id": "mh9vlkduqvairiwiph",
+    "createdAt": "2025-10-28T01:16:19.698Z"
+  },
+  {
+    "name": "Office",
+    "slug": "office",
+    "description": "Professional furniture for your workspace",
+    "image": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=500",
+    "isActive": true,
+    "_id": "mh9vlkdyh768js9xzq",
+    "createdAt": "2025-10-28T01:16:19.702Z"
+  }
+]
