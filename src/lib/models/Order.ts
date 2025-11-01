@@ -280,8 +280,23 @@ OrderSchema.set('toObject', { virtuals: true });
 // Pre-save middleware to generate order number
 OrderSchema.pre('save', async function(next) {
   if (!this.orderNumber) {
-    const count = await mongoose.model('Order').countDocuments();
-    this.orderNumber = `ORD-${String(count + 1).padStart(6, '0')}`;
+    try {
+      // Get the Order model - use mongoose.model to access it
+      const OrderModel = mongoose.models.Order || mongoose.model('Order');
+      const count = await OrderModel.countDocuments();
+      // Generate order number: ORD-000001, ORD-000002, etc.
+      this.orderNumber = `ORD-${String(count + 1).padStart(6, '0')}`;
+      
+      // Alternative: Use timestamp-based order number for uniqueness
+      // const timestamp = Date.now().toString().slice(-8);
+      // const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      // this.orderNumber = `ORD-${timestamp}-${random}`;
+    } catch (error) {
+      // Fallback to timestamp-based order number if counting fails
+      const timestamp = Date.now().toString().slice(-8);
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      this.orderNumber = `ORD-${timestamp}-${random}`;
+    }
   }
   next();
 });

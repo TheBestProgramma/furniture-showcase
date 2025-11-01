@@ -111,6 +111,13 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const body = await request.json();
+    console.log('Order creation request received:', {
+      hasCustomer: !!body.customer,
+      hasShippingAddress: !!body.shippingAddress,
+      itemsCount: body.items?.length || 0,
+      paymentMethod: body.paymentMethod
+    });
+
     const { 
       customer, 
       shippingAddress, 
@@ -135,13 +142,39 @@ export async function POST(request: NextRequest) {
     let subtotal = 0;
     const validatedItems = [];
 
+    console.log(`Processing ${items.length} items...`);
+
     for (const item of items) {
-      const product = await Product.findById(item.product);
+      // Validate product ID exists
+      if (!item.product) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: `Product ID is required for item: ${item.name || 'Unknown'}` 
+          },
+          { status: 400 }
+        );
+      }
+
+      // Find product by ID (MongoDB handles both ObjectId and string IDs)
+      console.log(`Looking for product with ID: ${item.product}`);
+      let product = await Product.findById(item.product);
+
+      // If not found by ID, try to find by name as fallback (for backward compatibility)
+      if (!product && item.name) {
+        console.log(`Product not found by ID, trying to find by name: ${item.name}`);
+        product = await Product.findOne({ name: item.name });
+      }
+      
+      if (product) {
+        console.log(`Found product: ${product.name}, Stock: ${product.stockQuantity}, Price: ${product.price}`);
+      }
+
       if (!product) {
         return NextResponse.json(
           { 
             success: false, 
-            error: `Product with ID ${item.product} not found` 
+            error: `Product with ID "${item.product}" not found for item: ${item.name || 'Unknown'}. Please remove this item from your cart and try again.` 
           },
           { status: 400 }
         );
@@ -160,12 +193,23 @@ export async function POST(request: NextRequest) {
       const itemTotal = product.price * item.quantity;
       subtotal += itemTotal;
 
+      // Extract image URL - handle both string and object formats
+      let imageUrl = '/images/placeholder.jpg';
+      if (product.images && product.images.length > 0) {
+        const firstImage = product.images[0];
+        if (typeof firstImage === 'string') {
+          imageUrl = firstImage;
+        } else if (firstImage && typeof firstImage === 'object' && firstImage.url) {
+          imageUrl = firstImage.url;
+        }
+      }
+
       validatedItems.push({
         product: product._id,
         quantity: item.quantity,
         price: product.price,
         name: product.name,
-        image: product.images[0] || '/images/placeholder.jpg'
+        image: imageUrl
       });
     }
 
@@ -175,45 +219,123 @@ export async function POST(request: NextRequest) {
     const discount = 0; // Could be calculated from coupons
     const total = subtotal + tax + shipping - discount;
 
-    // Create order
-    const order = new Order({
-      customer,
-      shippingAddress,
-      billingAddress: billingAddress || shippingAddress,
-      items: validatedItems,
-      subtotal,
-      tax,
-      shipping,
-      discount,
-      total,
-      paymentMethod,
-      notes,
-      status: 'pending',
-      paymentStatus: 'pending'
-    });
-
-    await order.save();
-
-    // Update product stock
-    for (const item of validatedItems) {
-      await Product.findByIdAndUpdate(
-        item.product,
-        { $inc: { stockQuantity: -item.quantity } }
+    // Validate required fields for order creation
+    if (!customer.name || !customer.email) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Customer name and email are required' 
+        },
+        { status: 400 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: order
-    }, { status: 201 });
+    if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.zipCode || !shippingAddress.country) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Complete shipping address is required (street, city, state, zipCode, country)' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Create order
+    try {
+      // Generate order number
+      let orderNumber: string;
+      try {
+        const orderCount = await Order.countDocuments();
+        orderNumber = `ORD-${String(orderCount + 1).padStart(6, '0')}`;
+      } catch (countError) {
+        // Fallback to timestamp-based order number
+        const timestamp = Date.now().toString().slice(-8);
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        orderNumber = `ORD-${timestamp}-${random}`;
+      }
+
+      console.log('Creating order with data:', {
+        orderNumber,
+        customerName: customer?.name,
+        itemsCount: validatedItems.length,
+        subtotal,
+        tax,
+        shipping,
+        total,
+        paymentMethod
+      });
+
+      const order = new Order({
+        orderNumber, // Explicitly set order number
+        customer,
+        shippingAddress,
+        billingAddress: billingAddress || shippingAddress,
+        items: validatedItems,
+        subtotal,
+        tax,
+        shipping,
+        discount: discount || 0,
+        total,
+        paymentMethod,
+        notes: notes || '',
+        status: 'pending',
+        paymentStatus: 'pending'
+      });
+
+      await order.save();
+      console.log(`Order created successfully: ${order.orderNumber} (${order._id})`);
+
+      // Update product stock
+      for (const item of validatedItems) {
+        await Product.findByIdAndUpdate(
+          item.product,
+          { $inc: { stockQuantity: -item.quantity } }
+        );
+      }
+
+      // Convert order to plain object for JSON response
+      const orderData = order.toObject ? order.toObject() : order;
+
+      return NextResponse.json({
+        success: true,
+        data: { order: orderData }
+      }, { status: 201 });
+    } catch (orderError) {
+      // Handle order creation/validation errors separately
+      console.error('Error saving order:', orderError);
+      throw orderError; // Re-throw to be caught by outer catch
+    }
 
   } catch (error) {
     console.error('Error creating order:', error);
+    
+    // Extract detailed error message
+    let errorMessage = 'Failed to create order';
+    let detailedMessage = 'Unknown error';
+    
+    if (error instanceof Error) {
+      detailedMessage = error.message;
+      // Check if it's a MongoDB validation error
+      if (error.name === 'ValidationError' && (error as any).errors) {
+        const validationErrors = Object.values((error as any).errors)
+          .map((err: any) => err.message)
+          .join(', ');
+        errorMessage = `Validation error: ${validationErrors}`;
+        detailedMessage = validationErrors;
+      } else if (error.message) {
+        errorMessage = error.message;
+        detailedMessage = error.message;
+      }
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to create order',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: errorMessage,
+        message: detailedMessage,
+        ...(process.env.NODE_ENV === 'development' && { 
+          stack: error instanceof Error ? error.stack : undefined 
+        })
       },
       { status: 500 }
     );

@@ -24,8 +24,8 @@ export function OrderSummary({ items }: OrderSummaryProps) {
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">Items in your order</h3>
         <div className="space-y-4">
-          {items.map((item) => (
-            <div key={item._id} className="flex items-center space-x-4">
+          {items.map((item, index) => (
+            <div key={item.id || `cart-item-${index}`} className="flex items-center space-x-4">
               <div className="shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden">
                 {item.image ? (
                   <Image

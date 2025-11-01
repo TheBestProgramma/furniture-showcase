@@ -54,13 +54,58 @@ export default function CheckoutPage() {
           phone: formData.phoneNumber,
         },
         shippingAddress: formData.deliveryAddress,
-        items: items.map(item => ({
-          product: item._id,
-          quantity: item.quantity,
-          price: item.price,
-          name: item.name,
-          image: item.image,
-        })),
+        items: items.map((item, index) => {
+          // Extract product ID from cart item
+          let productId: string | undefined;
+          
+          // First, try to use productId if it exists
+          if ((item as any).productId) {
+            productId = String((item as any).productId).trim();
+          } else if (item.id) {
+            // Try to extract from composite ID (format: "productId-color" or just "productId")
+            const idParts = String(item.id).split('-');
+            // If ID contains a hyphen, assume last part is the color/variant
+            // Otherwise, the entire ID is the product ID
+            if (idParts.length > 1) {
+              // Remove the last part (color) and join the rest
+              productId = idParts.slice(0, -1).join('-').trim();
+            } else {
+              // No hyphen, so the ID itself is the product ID
+              productId = String(item.id).trim();
+            }
+          }
+          
+          // Validate productId
+          if (!productId || productId === '' || productId === 'undefined' || productId === 'null') {
+            console.error('Failed to extract product ID. Cart item details:', {
+              index,
+              id: item.id,
+              name: item.name,
+              productId: (item as any).productId,
+              fullItem: JSON.stringify(item, null, 2)
+            });
+            throw new Error(
+              `Product ID not found for item: "${item.name}". ` +
+              `Item ID: "${item.id}". ` +
+              `Please remove this item from your cart and add it again.`
+            );
+          }
+          
+          console.log(`Order item ${index + 1}:`, {
+            name: item.name,
+            extractedProductId: productId,
+            originalId: item.id,
+            hasProductIdField: !!(item as any).productId
+          });
+          
+          return {
+            product: productId,
+            quantity: item.quantity,
+            price: item.price,
+            name: item.name,
+            image: item.image,
+          };
+        }),
         subtotal,
         tax,
         shipping,
@@ -81,17 +126,58 @@ export default function CheckoutPage() {
         body: JSON.stringify(orderData),
       });
 
-      const result = await response.json();
+      let result;
+      try {
+        const text = await response.text();
+        try {
+          result = JSON.parse(text);
+        } catch (parseError) {
+          // If response is not valid JSON
+          console.error('Order creation failed - Invalid JSON response:', {
+            status: response.status,
+            statusText: response.statusText,
+            body: text.substring(0, 500) // Limit body length for logging
+          });
+          throw new Error(`Order creation failed (${response.status}): ${response.statusText || text || 'Unknown error'}`);
+        }
+      } catch (fetchError) {
+        // Network or fetch error
+        console.error('Order creation failed - Network error:', fetchError);
+        throw new Error('Network error: Failed to connect to server. Please check your connection and try again.');
+      }
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create order');
+        // Provide more detailed error message
+        const errorMsg = result?.message || result?.error || `Failed to create order (${response.status})`;
+        console.error('Order creation failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: result?.error || 'Unknown error',
+          message: result?.message || 'No message provided',
+          fullResponse: JSON.stringify(result, null, 2)
+        });
+        throw new Error(errorMsg);
+      }
+
+      if (!result.success) {
+        throw new Error(result.error || result.message || 'Order creation was unsuccessful');
+      }
+
+      if (!result.data || !result.data.order) {
+        throw new Error('Order was created but no order data was returned');
       }
 
       // Clear cart and redirect to success page
       clearCart();
       router.push(`/checkout/success?orderId=${result.data.order._id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Order submission error:', err);
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : typeof err === 'string' 
+          ? err 
+          : 'An error occurred while creating your order. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

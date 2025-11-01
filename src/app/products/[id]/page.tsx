@@ -225,6 +225,7 @@ export default function ProductDetailPage() {
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: `${product._id}-${selectedColor}`,
+        productId: product._id, // Store the actual product ID
         name: product.name,
         price: product.price,
         color: selectedColor,

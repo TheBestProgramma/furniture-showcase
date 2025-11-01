@@ -82,6 +82,8 @@ export interface ISettings extends Document {
     facebookPixelId?: string;
     hotjarId?: string;
   };
+  whatsappPhone?: string; // Seller phone number for WhatsApp orders
+  returnPolicy?: string; // Return policy text
   createdAt: Date;
   updatedAt: Date;
 }
@@ -375,6 +377,16 @@ const SettingsSchema: Schema = new Schema({
       type: String,
       trim: true
     }
+  },
+  whatsappPhone: {
+    type: String,
+    trim: true,
+    maxlength: [20, 'WhatsApp phone cannot be more than 20 characters']
+  },
+  returnPolicy: {
+    type: String,
+    trim: true,
+    maxlength: [2000, 'Return policy cannot be more than 2000 characters']
   }
 }, {
   timestamps: true

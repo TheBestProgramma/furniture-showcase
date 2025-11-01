@@ -185,6 +185,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <button 
                 onClick={() => addItem({
                   id: product._id,
+                  productId: product._id, // Store the actual product ID
                   name: product.name,
                   price: product.price,
                   color: product.color,
