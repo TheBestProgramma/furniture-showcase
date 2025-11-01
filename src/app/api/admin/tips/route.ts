@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Tip from '@/lib/models/Tip';
 
+// GET all tips (including unpublished) for admin
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Admin access required' 
+        },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
 
     const { searchParams } = new URL(request.url);
@@ -13,15 +28,14 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
-    const featured = searchParams.get('featured');
-    const published = searchParams.get('published') || 'true';
-    const sortBy = searchParams.get('sortBy') || 'publishedAt';
+    const published = searchParams.get('published'); // 'true', 'false', or undefined (all)
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
-    // Build filter object
+    // Build filter object - admin can see all tips
     const filter: any = {};
 
-    // Published filter (default to published only)
+    // Published filter (if specified)
     if (published === 'true') {
       filter.published = true;
     } else if (published === 'false') {
@@ -41,11 +55,6 @@ export async function GET(request: NextRequest) {
         { excerpt: { $regex: search, $options: 'i' } },
         { tags: { $in: [new RegExp(search, 'i')] } }
       ];
-    }
-
-    // Featured filter
-    if (featured === 'true') {
-      filter.featured = true;
     }
 
     // Build sort object
@@ -70,8 +79,7 @@ export async function GET(request: NextRequest) {
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
 
-    // Response data
-    const response = {
+    return NextResponse.json({
       success: true,
       data: {
         tips,
@@ -84,19 +92,9 @@ export async function GET(request: NextRequest) {
           hasPrevPage,
           nextPage: hasNextPage ? page + 1 : null,
           prevPage: hasPrevPage ? page - 1 : null
-        },
-        filters: {
-          category: category || null,
-          search: search || null,
-          featured: featured === 'true' || null,
-          published: published === 'true',
-          sortBy,
-          sortOrder
         }
       }
-    };
-
-    return NextResponse.json(response);
+    });
 
   } catch (error) {
     console.error('Error fetching tips:', error);
@@ -111,14 +109,27 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST method for creating tips (admin only - for future implementation)
+// POST - Create new tip (admin only)
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Admin access required' 
+        },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
 
     const body = await request.json();
     const { 
       title, 
+      slug,
       content, 
       excerpt, 
       author, 
@@ -133,7 +144,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!title || !content || !excerpt || !author || !category || !image || !readTime) {
+    if (!title || !content || !excerpt || !author || !category || !image?.url || !readTime) {
       return NextResponse.json(
         { 
           success: false, 
@@ -143,9 +154,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate content length
+    if (content.trim().length < 100) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Content must be at least 100 characters' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if slug already exists
+    const existingTip = await Tip.findOne({ slug: slug || title.toLowerCase().replace(/\s+/g, '-') });
+    if (existingTip) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'A tip with this slug already exists' 
+        },
+        { status: 400 }
+      );
+    }
+
     // Create new tip
     const tip = new Tip({
       title,
+      slug: slug || title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-'),
       content,
       excerpt,
       author,
@@ -153,7 +188,13 @@ export async function POST(request: NextRequest) {
       tags: tags || [],
       featured: featured || false,
       published: published || false,
-      image,
+      publishedAt: published ? new Date() : null,
+      image: {
+        url: image.url,
+        alt: image.alt || title,
+        width: image.width,
+        height: image.height
+      },
       readTime,
       seoTitle,
       seoDescription
@@ -163,7 +204,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: tip
+      data: tip,
+      message: 'Tip created successfully'
     }, { status: 201 });
 
   } catch (error) {
@@ -178,8 +220,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
-
-
 
