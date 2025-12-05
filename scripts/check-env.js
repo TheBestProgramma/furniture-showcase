@@ -3,18 +3,38 @@
 /**
  * Environment Variables Checker
  * This script ensures all required environment variables are loaded before starting the app
+ * Works in both local development (.env.local) and CI/CD environments (Vercel, etc.)
  */
 
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables from .env.local
+// Check if we're in a CI/CD environment (Vercel, GitHub Actions, etc.)
+function isCIEnvironment() {
+  return !!(
+    process.env.VERCEL ||
+    process.env.CI ||
+    process.env.GITHUB_ACTIONS ||
+    process.env.NETLIFY ||
+    process.env.RAILWAY_ENVIRONMENT ||
+    process.env.RENDER
+  );
+}
+
+// Load environment variables from .env.local (local development only)
 function loadEnvFile() {
   const envPath = path.join(__dirname, '..', '.env.local');
   
   if (!fs.existsSync(envPath)) {
+    // In CI/CD, environment variables come from the environment, not files
+    if (isCIEnvironment()) {
+      console.log('📦 CI/CD environment detected - using environment variables from platform');
+      return {};
+    }
+    
     console.error('❌ .env.local file not found!');
     console.error('Please create a .env.local file with the required environment variables.');
+    console.error('Or ensure environment variables are set in your deployment platform (Vercel, etc.)');
     process.exit(1);
   }
 
@@ -55,11 +75,17 @@ function checkRequiredEnvVars(envVars) {
   const missingVars = [];
   const presentVars = [];
 
+  // In CI/CD, check process.env directly; otherwise use loaded envVars
+  const checkSource = isCIEnvironment() ? process.env : envVars;
+
   requiredVars.forEach(varName => {
-    if (!envVars[varName]) {
+    const value = checkSource[varName];
+    if (!value) {
       missingVars.push(varName);
     } else {
       presentVars.push(varName);
+      // Store in envVars for display
+      envVars[varName] = value;
     }
   });
 
@@ -79,7 +105,14 @@ function checkRequiredEnvVars(envVars) {
     missingVars.forEach(varName => {
       console.log(`   - ${varName}`);
     });
-    console.log('\nPlease add these variables to your .env.local file.');
+    
+    if (isCIEnvironment()) {
+      console.log('\n💡 Tip: Add these variables in your deployment platform:');
+      console.log('   - Vercel: Settings → Environment Variables');
+      console.log('   - Other platforms: Check their environment variable documentation');
+    } else {
+      console.log('\nPlease add these variables to your .env.local file.');
+    }
     return false;
   }
 
@@ -92,7 +125,8 @@ function main() {
   console.log('🚀 Starting environment check...\n');
   
   try {
-    const envVars = loadEnvFile();
+    // Load from file (local) or use process.env (CI/CD)
+    const envVars = isCIEnvironment() ? {} : loadEnvFile();
     const allPresent = checkRequiredEnvVars(envVars);
     
     if (!allPresent) {

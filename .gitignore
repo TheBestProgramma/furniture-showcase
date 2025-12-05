@@ -43,3 +43,6 @@ next-env.d.ts
 *.md
 DATABASE_SETUP.md
 API_DOCUMENTATION.md
+
+.vercel
+.env*.local
