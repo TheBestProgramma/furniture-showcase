@@ -4,41 +4,7 @@ import { useState, useEffect } from 'react';
 import { AdminPageLayout } from '@/components/admin/AdminPageLayout';
 import { ProductsTable } from '@/components/admin/ProductsTable';
 import { ProductForm } from '@/components/admin/ProductForm';
-
-interface Product {
-  _id?: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  category: string;
-  subcategory?: string;
-  images: {
-    url: string;
-    alt?: string;
-    isPrimary?: boolean;
-  }[];
-  dimensions: {
-    width: number;
-    height: number;
-    depth: number;
-    weight?: number;
-  };
-  material: string[];
-  color: string;
-  brand?: string;
-  productModel?: string;
-  sku: string;
-  inStock: boolean;
-  stockQuantity: number;
-  featured: boolean;
-  onSale: boolean;
-  discountPercentage?: number;
-  tags: string[];
-  specifications: {
-    [key: string]: string | number;
-  };
-}
+import { Product } from '@/types/product';
 
 export default function AdminProductsPage() {
   const [view, setView] = useState<'list' | 'create' | 'edit'>('list');
@@ -134,7 +100,7 @@ export default function AdminProductsPage() {
               </button>
             </div>
             <ProductForm
-              product={selectedProduct}
+              product={selectedProduct || undefined}
               onSave={handleSaveProduct}
               onCancel={handleCancel}
               loading={loading}

@@ -57,16 +57,19 @@ UserSchema.index({ isActive: 1 });
 
 // Virtual for user display name
 UserSchema.virtual('displayName').get(function() {
-  return this.name || this.email.split('@')[0];
+  const name = String(this.name || '');
+  const email = String(this.email || '');
+  return name || email.split('@')[0];
 });
 
 // Virtual for user initials
 UserSchema.virtual('initials').get(function() {
-  const names = this.name.split(' ');
+  const name = String(this.name || '');
+  const names = name.split(' ');
   if (names.length >= 2) {
     return (names[0][0] + names[1][0]).toUpperCase();
   }
-  return this.name[0].toUpperCase();
+  return name[0]?.toUpperCase() || 'U';
 });
 
 // Ensure virtual fields are serialized
@@ -81,7 +84,7 @@ UserSchema.pre('save', async function(next) {
   try {
     // Hash password with cost of 12
     const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = await bcrypt.hash(String(this.password), salt);
     next();
   } catch (error) {
     next(error as Error);
@@ -91,7 +94,7 @@ UserSchema.pre('save', async function(next) {
 // Instance method to compare password
 UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   try {
-    return await bcrypt.compare(candidatePassword, this.password);
+    return await bcrypt.compare(candidatePassword, String(this.password));
   } catch (error) {
     throw new Error('Password comparison failed');
   }
@@ -145,9 +148,10 @@ UserSchema.statics.updateLastLogin = function(userId: string) {
   );
 };
 
-// Pre-remove middleware to prevent deletion of last admin
-UserSchema.pre('remove', async function(next) {
-  if (this.role === 'admin') {
+// Pre-delete middleware to prevent deletion of last admin
+UserSchema.pre(['findOneAndDelete', 'deleteOne'], async function(next) {
+  const doc = await this.model.findOne(this.getQuery());
+  if (doc && doc.role === 'admin') {
     const adminCount = await mongoose.model('User').countDocuments({ 
       role: 'admin', 
       isActive: true 

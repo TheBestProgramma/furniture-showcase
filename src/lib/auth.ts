@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           // Update last login
-          await User.updateLastLogin(user._id);
+          await (User as any).updateLastLogin(user._id);
 
           // Return user object (password will be excluded due to select: false)
           return {

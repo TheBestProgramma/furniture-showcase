@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 
@@ -36,7 +36,7 @@ interface OrderData {
   createdAt: string;
 }
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
@@ -246,13 +246,15 @@ export default function CheckoutSuccessPage() {
               }}
               orderSummary={{
                 items: orderData.items.map(item => ({
-                  _id: item.product,
+                  id: item.product || '',
+                  productId: item.product,
                   name: item.name,
                   price: item.price,
                   quantity: item.quantity,
                   image: item.image,
                   category: 'Furniture', // Default category
-                  color: 'Default' // Default color
+                  color: 'Default', // Default color
+                  inStock: true // Assume in stock for completed orders
                 })),
                 subtotal: orderData.subtotal,
                 shipping: orderData.shipping,
@@ -284,5 +286,20 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }

@@ -457,9 +457,24 @@ export default function ProductDetailPage() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct._id} product={relatedProduct} />
-              ))}
+              {relatedProducts.map((relatedProduct) => {
+                // Transform ProductData to match ProductCard's expected format
+                const productForCard = {
+                  ...relatedProduct,
+                  material: Array.isArray(relatedProduct.material) 
+                    ? relatedProduct.material.join(', ') 
+                    : relatedProduct.material || 'N/A',
+                  images: Array.isArray(relatedProduct.images)
+                    ? relatedProduct.images.map((img: any) => 
+                        typeof img === 'string' ? img : img.url || ''
+                      )
+                    : [],
+                  category: typeof relatedProduct.category === 'string'
+                    ? relatedProduct.category
+                    : relatedProduct.category?.name || 'other'
+                };
+                return <ProductCard key={relatedProduct._id} product={productForCard} />;
+              })}
             </div>
           </div>
         )}

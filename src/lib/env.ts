@@ -4,12 +4,19 @@
  */
 
 // Load environment variables with proper validation
-function loadEnvVars() {
+function loadEnvVars(): {
+  NEXTAUTH_SECRET?: string;
+  NEXTAUTH_URL: string;
+  MONGODB_URI?: string;
+  MONGODB_DB?: string;
+} {
   // Check if we're in a browser environment
   if (typeof window !== 'undefined') {
     return {
       NEXTAUTH_URL: process.env.NEXT_PUBLIC_NEXTAUTH_URL || 'http://localhost:3000',
       NEXTAUTH_SECRET: undefined, // Never expose secret to client
+      MONGODB_URI: undefined,
+      MONGODB_DB: undefined,
     };
   }
 

@@ -76,20 +76,22 @@ TestimonialSchema.index({ name: 'text', text: 'text', product: 'text' });
 
 // Virtual for rating display
 TestimonialSchema.virtual('ratingDisplay').get(function() {
+  const rating = Number(this.rating) || 0;
   return {
-    stars: '⭐'.repeat(this.rating),
-    numeric: this.rating,
-    text: `${this.rating} out of 5 stars`
+    stars: '⭐'.repeat(rating),
+    numeric: rating,
+    text: `${rating} out of 5 stars`
   };
 });
 
 // Virtual for testimonial summary
 TestimonialSchema.virtual('summary').get(function() {
+  const text = String(this.text || '');
   return {
-    isVerified: this.verified,
-    isFeatured: this.featured,
+    isVerified: Boolean(this.verified),
+    isFeatured: Boolean(this.featured),
     isApproved: this.status === 'approved',
-    displayText: this.text.length > 100 ? this.text.substring(0, 100) + '...' : this.text
+    displayText: text.length > 100 ? text.substring(0, 100) + '...' : text
   };
 });
 

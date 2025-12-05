@@ -103,7 +103,7 @@ Tax (16%): ${formatPrice(tax)}
     // Footer
     const footer = `
 ━━━━━━━━━━━━━━━━━━━━
-Order placed via ${business}${this.BUSINESS_NAME} website
+Order placed via ${business} website
 Time: ${new Date().toLocaleString('en-KE', {
       year: 'numeric',
       month: 'long',
@@ -161,13 +161,14 @@ Please confirm this order and provide delivery timeline.`;
   /**
    * Generate order confirmation message for customer
    */
-  static generateCustomerConfirmation(
+  static async generateCustomerConfirmation(
     orderNumber: string,
     customerInfo: CustomerInfo,
     orderSummary: OrderSummary
-  ): string {
+  ): Promise<string> {
     const { total } = orderSummary;
     const formatPrice = (price: number) => `KSh ${price.toLocaleString('en-KE')}`;
+    const businessName = await this.getBusinessName();
     
     return `✅ *ORDER CONFIRMED - ${orderNumber}*
 
@@ -186,7 +187,7 @@ Delivery Address: ${customerInfo.deliveryAddress.street}, ${customerInfo.deliver
 
 Questions? Reply to this message or call us directly.
 
-Thank you for choosing ${businessName || this.DEFAULT_BUSINESS_NAME}! 🛋️`;
+Thank you for choosing ${businessName}! 🛋️`;
   }
 
   /**
