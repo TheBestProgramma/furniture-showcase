@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getFeaturedTestimonials, mockTestimonials, testimonialCategories } from '@/lib/types/testimonials';
+import { testimonialCategories } from '@/lib/types/testimonials';
+import { useTestimonials, useFeaturedTestimonials } from '@/hooks/useTestimonials';
 import TestimonialCard from './TestimonialCard';
 
 interface TestimonialsSectionProps {
@@ -17,25 +18,32 @@ export default function TestimonialsSection({
 }: TestimonialsSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [filteredTestimonials, setFilteredTestimonials] = useState(mockTestimonials);
+  
+  // Fetch testimonials from API
+  const { testimonials: allTestimonials, loading: loadingAll } = useTestimonials({ 
+    autoFetch: showAll || variant === 'full' 
+  });
+  const { testimonials: featuredTestimonials, loading: loadingFeatured } = useFeaturedTestimonials(maxItems);
+  
+  const [filteredTestimonials, setFilteredTestimonials] = useState(allTestimonials);
 
   // Filter testimonials based on category
   useEffect(() => {
     if (selectedCategory === 'all') {
-      setFilteredTestimonials(mockTestimonials);
+      setFilteredTestimonials(allTestimonials);
     } else {
       const category = testimonialCategories.find(cat => cat.slug === selectedCategory);
       if (category) {
         setFilteredTestimonials(
-          mockTestimonials.filter(testimonial => 
+          allTestimonials.filter(testimonial => 
             testimonial.product?.toLowerCase().includes(category.slug.toLowerCase())
           )
         );
       }
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, allTestimonials]);
 
-  const featuredTestimonials = getFeaturedTestimonials();
+  const loading = showAll || variant === 'full' ? loadingAll : loadingFeatured;
   const displayTestimonials = showAll ? filteredTestimonials : featuredTestimonials;
   const limitedTestimonials = displayTestimonials.slice(0, maxItems);
 
@@ -48,6 +56,33 @@ export default function TestimonialsSection({
       return () => clearInterval(timer);
     }
   }, [variant, limitedTestimonials.length]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="py-20 bg-gradient-to-br from-primary-50 to-secondary-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading testimonials...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (limitedTestimonials.length === 0) {
+    return (
+      <div className="py-20 bg-gradient-to-br from-primary-50 to-secondary-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <p className="text-gray-600">No testimonials available at the moment.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (variant === 'compact') {
     return (
@@ -232,6 +267,9 @@ export default function TestimonialsSection({
     </section>
   );
 }
+
+
+
 
 
 

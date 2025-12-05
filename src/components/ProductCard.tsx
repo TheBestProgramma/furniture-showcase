@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { IFurniture } from '@/lib/models/Furniture';
@@ -59,10 +60,12 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Image */}
       <div className="relative h-64 bg-gray-100 group overflow-hidden">
         {product.images && product.images.length > 0 ? (
-          <img
+          <Image
             src={typeof product.images[0] === 'string' ? product.images[0] : (product.images[0] as any)?.url}
             alt={product.name}
-            className="w-full h-full object-cover transition-all duration-300 group-hover:blur-sm group-hover:brightness-75"
+            fill
+            className="object-cover transition-all duration-300 group-hover:blur-sm group-hover:brightness-75"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">

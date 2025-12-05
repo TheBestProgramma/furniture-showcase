@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
 import Product from '@/lib/models/Product';
+import { sanitizeInput, isValidEmail, isValidPhoneNumber, validateTextInput } from '@/lib/security';
 
 export async function GET(request: NextRequest) {
   try {
@@ -219,7 +220,7 @@ export async function POST(request: NextRequest) {
     const discount = 0; // Could be calculated from coupons
     const total = subtotal + tax + shipping - discount;
 
-    // Validate required fields for order creation
+    // Validate and sanitize customer information
     if (!customer.name || !customer.email) {
       return NextResponse.json(
         { 
@@ -229,6 +230,37 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Sanitize customer data
+    const nameValidation = validateTextInput(customer.name, 2, 100);
+    if (!nameValidation.isValid) {
+      return NextResponse.json(
+        { success: false, error: nameValidation.error },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidEmail(customer.email)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Validate phone if provided
+    if (customer.phone && !isValidPhoneNumber(customer.phone)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid phone number format' },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize customer data
+    const sanitizedCustomer = {
+      name: nameValidation.sanitized,
+      email: customer.email.trim().toLowerCase(),
+      phone: customer.phone ? sanitizeInput(customer.phone) : undefined
+    };
 
     if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.zipCode || !shippingAddress.country) {
       return NextResponse.json(
@@ -265,11 +297,29 @@ export async function POST(request: NextRequest) {
         paymentMethod
       });
 
+      // Sanitize shipping address
+      const sanitizedShippingAddress = {
+        street: sanitizeInput(shippingAddress.street),
+        city: sanitizeInput(shippingAddress.city),
+        state: sanitizeInput(shippingAddress.state),
+        zipCode: sanitizeInput(shippingAddress.zipCode),
+        country: sanitizeInput(shippingAddress.country)
+      };
+
+      // Sanitize billing address if provided
+      const sanitizedBillingAddress = billingAddress ? {
+        street: sanitizeInput(billingAddress.street),
+        city: sanitizeInput(billingAddress.city),
+        state: sanitizeInput(billingAddress.state),
+        zipCode: sanitizeInput(billingAddress.zipCode),
+        country: sanitizeInput(billingAddress.country)
+      } : sanitizedShippingAddress;
+
       const order = new Order({
         orderNumber, // Explicitly set order number
-        customer,
-        shippingAddress,
-        billingAddress: billingAddress || shippingAddress,
+        customer: sanitizedCustomer,
+        shippingAddress: sanitizedShippingAddress,
+        billingAddress: sanitizedBillingAddress,
         items: validatedItems,
         subtotal,
         tax,
@@ -277,7 +327,7 @@ export async function POST(request: NextRequest) {
         discount: discount || 0,
         total,
         paymentMethod,
-        notes: notes || '',
+        notes: notes ? sanitizeInput(notes) : '',
         status: 'pending',
         paymentStatus: 'pending'
       });

@@ -1,51 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockTestimonials, getFeaturedTestimonials, getTestimonialsByCategory, getVerifiedTestimonials } from '@/lib/types/testimonials';
+import connectDB from '@/lib/mongodb';
+import Testimonial from '@/lib/models/Testimonial';
 
-// GET /api/testimonials - Get all testimonials with optional filtering
+// GET /api/testimonials - Get all approved testimonials with optional filtering
 export async function GET(request: NextRequest) {
   try {
+    await connectDB();
+
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
     const featured = searchParams.get('featured');
     const verified = searchParams.get('verified');
     const limit = searchParams.get('limit');
     const rating = searchParams.get('rating');
 
-    let testimonials = mockTestimonials;
+    // Build filter - only show approved testimonials to public
+    const filter: any = {
+      status: 'approved'
+    };
 
-    // Apply filters
+    // Featured filter
     if (featured === 'true') {
-      testimonials = getFeaturedTestimonials();
+      filter.featured = true;
     }
 
+    // Verified filter
     if (verified === 'true') {
-      testimonials = testimonials.filter(t => t.verified);
+      filter.verified = true;
     }
 
-    if (category && category !== 'all') {
-      testimonials = getTestimonialsByCategory(category);
-    }
-
+    // Rating filter
     if (rating) {
       const minRating = parseInt(rating);
       if (!isNaN(minRating)) {
-        testimonials = testimonials.filter(t => t.rating >= minRating);
+        filter.rating = { $gte: minRating };
       }
     }
+
+    // Build query
+    let query = Testimonial.find(filter).sort({ createdAt: -1 });
 
     // Apply limit
     if (limit) {
       const limitNum = parseInt(limit);
       if (!isNaN(limitNum)) {
-        testimonials = testimonials.slice(0, limitNum);
+        query = query.limit(limitNum);
       }
     }
 
+    const testimonials = await query.lean();
+
+    // Transform to match expected format
+    const formattedTestimonials = testimonials.map((t: any) => ({
+      id: t._id.toString(),
+      name: t.name,
+      location: t.location,
+      rating: t.rating,
+      text: t.text,
+      image: t.image || undefined,
+      product: t.product || undefined,
+      date: t.createdAt,
+      verified: t.verified,
+      featured: t.featured
+    }));
+
     return NextResponse.json({
       success: true,
-      data: testimonials,
-      count: testimonials.length,
-      total: mockTestimonials.length
+      data: formattedTestimonials,
+      count: formattedTestimonials.length,
+      total: formattedTestimonials.length
     });
 
   } catch (error) {
@@ -57,9 +79,11 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/testimonials - Create a new testimonial (for future backend integration)
+// POST /api/testimonials - Create a new testimonial (public endpoint)
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+
     const body = await request.json();
     
     // Validate required fields
@@ -67,7 +91,7 @@ export async function POST(request: NextRequest) {
     
     if (!name || !location || !rating || !text) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Missing required fields: name, location, rating, text' },
         { status: 400 }
       );
     }
@@ -79,28 +103,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new testimonial (in a real app, this would save to database)
-    const newTestimonial = {
-      id: `testimonial_${Date.now()}`,
+    // Create new testimonial - starts as pending and needs admin approval
+    const testimonial = new Testimonial({
       name,
       location,
       rating: parseInt(rating),
       text,
-      image: image || null,
-      product: product || null,
-      date: new Date(),
+      product: product || undefined,
+      image: image || undefined,
       verified: false, // New testimonials start as unverified
-      featured: false // New testimonials start as not featured
-    };
+      featured: false, // New testimonials start as not featured
+      status: 'pending' // Requires admin approval
+    });
 
-    // In a real application, you would save this to your database here
-    // For now, we'll just return the created testimonial
-    console.log('New testimonial created:', newTestimonial);
+    await testimonial.save();
+
+    // Return formatted testimonial
+    const formattedTestimonial = {
+      id: testimonial._id.toString(),
+      name: testimonial.name,
+      location: testimonial.location,
+      rating: testimonial.rating,
+      text: testimonial.text,
+      image: testimonial.image || undefined,
+      product: testimonial.product || undefined,
+      date: testimonial.createdAt,
+      verified: testimonial.verified,
+      featured: testimonial.featured
+    };
 
     return NextResponse.json({
       success: true,
-      data: newTestimonial,
-      message: 'Testimonial created successfully'
+      data: formattedTestimonial,
+      message: 'Testimonial submitted successfully. It will be reviewed by an administrator.'
     }, { status: 201 });
 
   } catch (error) {
@@ -111,6 +146,9 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+
+
 
 
 

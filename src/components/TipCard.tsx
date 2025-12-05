@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Tip } from '@/hooks/useTips';
 
 interface TipCardProps {
@@ -36,11 +37,12 @@ export default function TipCard({ tip }: TipCardProps) {
     >
       {/* Image Section */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">
-        <img
+        <Image
           src={typeof tip.image === 'string' ? tip.image : (tip.image as any)?.url}
           alt={typeof tip.image === 'string' ? tip.title : ((tip.image as any)?.alt || tip.title)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
         
         {/* Overlay elements */}

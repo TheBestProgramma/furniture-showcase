@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface ImageGalleryProps {
   images: string[];
@@ -69,13 +70,16 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
     <div className="space-y-4">
       {/* Main Image Display */}
       <div className="relative w-full h-64 sm:h-80 lg:h-96 bg-gray-100 rounded-lg overflow-hidden group">
-        <img
+        <Image
           src={images[currentImageIndex]}
           alt={`${productName} - Image ${currentImageIndex + 1}`}
-          className={`w-full h-full object-cover transition-transform duration-300 cursor-pointer ${
+          fill
+          className={`object-cover transition-transform duration-300 cursor-pointer ${
             isZoomed ? 'scale-150' : 'group-hover:scale-105'
           }`}
           onClick={toggleZoom}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={currentImageIndex === 0}
         />
         
         {/* Navigation Arrows */}
@@ -144,10 +148,12 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <img
+              <Image
                 src={image}
                 alt={`${productName} thumbnail ${index + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="80px"
               />
             </button>
           ))}

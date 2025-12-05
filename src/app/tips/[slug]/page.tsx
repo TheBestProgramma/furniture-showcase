@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -146,11 +147,13 @@ export default function TipDetailPage() {
         <article className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {/* Hero Image */}
           <div className="relative h-64 md:h-80 bg-gray-200 overflow-hidden">
-            <img
+            <Image
               src={typeof tip.image === 'string' ? tip.image : (tip.image as any)?.url}
               alt={typeof tip.image === 'string' ? tip.title : ((tip.image as any)?.alt || tip.title)}
-              className="w-full h-full object-cover relative z-0"
-              loading="lazy"
+              fill
+              className="object-cover relative z-0"
+              sizes="(max-width: 768px) 100vw, 100vw"
+              priority
             />
             
             {/* Category Badge */}

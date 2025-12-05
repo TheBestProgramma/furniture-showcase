@@ -406,3 +406,6 @@ export function TipsTable({ onEdit, onDelete, onTogglePublish }: TipsTableProps)
   );
 }
 
+
+
+

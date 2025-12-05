@@ -23,8 +23,24 @@ interface OrderSummary {
 }
 
 export class WhatsAppIntegration {
-  private static readonly SELLER_PHONE = '+254797529105'; // Replace with actual seller phone
-  private static readonly BUSINESS_NAME = 'Furniture Showcase';
+  // Fallback values if settings are not available
+  private static readonly DEFAULT_SELLER_PHONE = '+254797529105';
+  private static readonly DEFAULT_BUSINESS_NAME = 'Furniture Showcase';
+
+  /**
+   * Get seller phone from settings (client-side)
+   * This should be called with settings fetched from API
+   */
+  static getSellerPhone(settings?: { whatsappPhone?: string }): string {
+    return settings?.whatsappPhone || this.DEFAULT_SELLER_PHONE;
+  }
+
+  /**
+   * Get business name from settings (client-side)
+   */
+  static getBusinessName(settings?: { siteName?: string }): string {
+    return settings?.siteName || this.DEFAULT_BUSINESS_NAME;
+  }
 
   /**
    * Generate WhatsApp message with order details
@@ -32,8 +48,10 @@ export class WhatsAppIntegration {
   static generateOrderMessage(
     customerInfo: CustomerInfo,
     orderSummary: OrderSummary,
-    orderNumber?: string
+    orderNumber?: string,
+    businessName?: string
   ): string {
+    const business = businessName || this.DEFAULT_BUSINESS_NAME;
     const { items, subtotal, shipping, tax, total } = orderSummary;
     
     // Format currency
@@ -85,7 +103,7 @@ Tax (16%): ${formatPrice(tax)}
     // Footer
     const footer = `
 ━━━━━━━━━━━━━━━━━━━━
-Order placed via ${this.BUSINESS_NAME} website
+Order placed via ${business}${this.BUSINESS_NAME} website
 Time: ${new Date().toLocaleString('en-KE', {
       year: 'numeric',
       month: 'long',
@@ -102,17 +120,19 @@ Please confirm this order and provide delivery timeline.`;
   /**
    * Generate WhatsApp Web URL for sending message
    */
-  static generateWhatsAppUrl(message: string): string {
+  static generateWhatsAppUrl(message: string, sellerPhone?: string): string {
+    const phone = sellerPhone || this.DEFAULT_SELLER_PHONE;
     const encodedMessage = encodeURIComponent(message);
-    return `https://wa.me/${this.SELLER_PHONE.replace('+', '')}?text=${encodedMessage}`;
+    return `https://wa.me/${phone.replace('+', '')}?text=${encodedMessage}`;
   }
 
   /**
    * Generate WhatsApp Web URL for sending message (alternative method)
    */
-  static generateWhatsAppWebUrl(message: string): string {
+  static generateWhatsAppWebUrl(message: string, sellerPhone?: string): string {
+    const phone = sellerPhone || this.DEFAULT_SELLER_PHONE;
     const encodedMessage = encodeURIComponent(message);
-    return `https://web.whatsapp.com/send?phone=${this.SELLER_PHONE.replace('+', '')}&text=${encodedMessage}`;
+    return `https://web.whatsapp.com/send?phone=${phone.replace('+', '')}&text=${encodedMessage}`;
   }
 
   /**
@@ -128,12 +148,12 @@ Please confirm this order and provide delivery timeline.`;
   /**
    * Open WhatsApp with order message
    */
-  static openWhatsApp(message: string): void {
+  static openWhatsApp(message: string, sellerPhone?: string): void {
     if (typeof window === 'undefined') return;
 
     const url = this.isWhatsAppSupported() 
-      ? this.generateWhatsAppUrl(message)
-      : this.generateWhatsAppWebUrl(message);
+      ? this.generateWhatsAppUrl(message, sellerPhone)
+      : this.generateWhatsAppWebUrl(message, sellerPhone);
     
     window.open(url, '_blank');
   }
@@ -166,7 +186,7 @@ Delivery Address: ${customerInfo.deliveryAddress.street}, ${customerInfo.deliver
 
 Questions? Reply to this message or call us directly.
 
-Thank you for choosing ${this.BUSINESS_NAME}! 🛋️`;
+Thank you for choosing ${businessName || this.DEFAULT_BUSINESS_NAME}! 🛋️`;
   }
 
   /**
@@ -254,6 +274,9 @@ Total: ${formatPrice(total)}
 Please provide your details for delivery.`;
   }
 };
+
+
+
 
 
 
