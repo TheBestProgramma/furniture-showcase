@@ -80,6 +80,7 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
           onClick={toggleZoom}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority={currentImageIndex === 0}
+          quality={90}
         />
         
         {/* Navigation Arrows */}
@@ -142,7 +143,7 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
             <button
               key={index}
               onClick={() => goToImage(index)}
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+              className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                 index === currentImageIndex
                   ? 'border-blue-500 ring-2 ring-blue-200'
                   : 'border-gray-200 hover:border-gray-300'
@@ -154,6 +155,7 @@ export default function ImageGallery({ images, productName }: ImageGalleryProps)
                 fill
                 className="object-cover"
                 sizes="80px"
+                quality={75}
               />
             </button>
           ))}

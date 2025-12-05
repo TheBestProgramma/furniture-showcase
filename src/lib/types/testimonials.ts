@@ -6,7 +6,7 @@ export interface Testimonial {
   text: string;
   image?: string; // Optional customer photo
   product?: string; // Optional product they purchased
-  date: Date;
+  date: Date | string; // Date object or ISO string
   verified: boolean; // Whether the purchase was verified
   featured: boolean; // Whether to show in featured section
 }

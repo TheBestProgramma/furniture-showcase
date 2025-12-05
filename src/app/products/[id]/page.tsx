@@ -3,212 +3,102 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ImageGallery from '@/components/ImageGallery';
-import { IFurniture } from '@/lib/models/Furniture';
+import ProductCard from '@/components/ProductCard';
 import { useCartStore } from '@/store/cartStore';
 
-// Common interface for furniture data (used by both mock data and components)
-interface FurnitureData {
+// Product interface matching database schema
+interface ProductData {
   _id: string;
   name: string;
   description: string;
   price: number;
-  category: string;
-  material: string;
+  originalPrice?: number;
+  category: string | {
+    _id: string;
+    name: string;
+    slug: string;
+  };
+  subcategory?: string;
+  images: {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+    isPrimary?: boolean;
+  }[] | string[];
   dimensions: {
     width: number;
     height: number;
     depth: number;
+    weight?: number;
   };
+  material: string | string[];
   color: string;
-  images: string[];
+  brand?: string;
+  sku: string;
   inStock: boolean;
+  stockQuantity: number;
   featured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  onSale?: boolean;
+  discountPercentage?: number;
+  tags?: string[];
+  specifications?: {
+    [key: string]: string | number;
+  };
+  rating?: {
+    average: number;
+    count: number;
+  };
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
-
-// Mock furniture data (same as in products page)
-const mockFurniture: FurnitureData[] = [
-  {
-    _id: '1',
-    name: 'Modern Leather Sofa',
-    description: 'A comfortable and stylish leather sofa perfect for any living room. Features premium leather upholstery and sturdy wooden frame.',
-    price: 195000,
-    category: 'sofa',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800',
-      'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800'
-    ],
-    dimensions: { width: 84, height: 34, depth: 36 },
-    material: 'leather',
-    color: 'brown',
-    inStock: true,
-    featured: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '2',
-    name: 'Oak Dining Table',
-    description: 'Beautiful solid oak dining table that seats 6 people comfortably. Handcrafted with attention to detail and durability.',
-    price: 135000,
-    category: 'table',
-    images: [
-      'https://images.unsplash.com/photo-1549497538-303791108f95?w=800',
-      'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800'
-    ],
-    dimensions: { width: 72, height: 30, depth: 36 },
-    material: 'wood',
-    color: 'oak',
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '3',
-    name: 'Ergonomic Office Chair',
-    description: 'High-quality ergonomic office chair with lumbar support and adjustable height. Perfect for long work sessions.',
-    price: 45000,
-    category: 'chair',
-    images: [
-      'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800',
-      'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800'
-    ],
-    dimensions: { width: 24, height: 40, depth: 24 },
-    material: 'mixed',
-    color: 'black',
-    inStock: true,
-    featured: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '4',
-    name: 'King Size Bed Frame',
-    description: 'Elegant king size bed frame with built-in storage drawers. Made from sustainable materials and designed for modern bedrooms.',
-    price: 240000,
-    category: 'bed',
-    images: [
-      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'
-    ],
-    dimensions: { width: 80, height: 24, depth: 84 },
-    material: 'wood',
-    color: 'white',
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '5',
-    name: 'Glass Coffee Table',
-    description: 'Modern glass coffee table with metal legs. Adds elegance and sophistication to any living space.',
-    price: 67500,
-    category: 'table',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'
-    ],
-    dimensions: { width: 48, height: 18, depth: 24 },
-    material: 'glass',
-    color: 'clear',
-    inStock: false,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '6',
-    name: 'Bookshelf Unit',
-    description: '5-tier bookshelf unit perfect for organizing books, decor, and storage. Made from engineered wood with a clean finish.',
-    price: 30000,
-    category: 'shelf',
-    images: [
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-      'https://images.unsplash.com/photo-1549497538-303791108f95?w=800'
-    ],
-    dimensions: { width: 30, height: 72, depth: 12 },
-    material: 'wood',
-    color: 'walnut',
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '7',
-    name: 'Executive Desk',
-    description: 'Spacious executive desk with multiple drawers and cable management. Perfect for home offices and professional workspaces.',
-    price: 120000,
-    category: 'desk',
-    images: [
-      'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800',
-      'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800'
-    ],
-    dimensions: { width: 60, height: 30, depth: 30 },
-    material: 'wood',
-    color: 'mahogany',
-    inStock: true,
-    featured: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '8',
-    name: 'Storage Cabinet',
-    description: 'Multi-purpose storage cabinet with adjustable shelves and soft-close doors. Great for organizing various items.',
-    price: 52500,
-    category: 'cabinet',
-    images: [
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'
-    ],
-    dimensions: { width: 36, height: 72, depth: 18 },
-    material: 'wood',
-    color: 'gray',
-    inStock: true,
-    featured: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
-// Available colors for each product (mock data)
-const availableColors = {
-  '1': ['brown', 'black', 'tan'],
-  '2': ['oak', 'walnut', 'cherry'],
-  '3': ['black', 'gray', 'blue'],
-  '4': ['white', 'oak', 'walnut'],
-  '5': ['clear', 'tinted'],
-  '6': ['walnut', 'oak', 'white'],
-  '7': ['mahogany', 'oak', 'walnut'],
-  '8': ['gray', 'white', 'oak']
-};
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
-  const [product, setProduct] = useState<FurnitureData | null>(null);
+  const [product, setProduct] = useState<ProductData | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<ProductData[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [cartFeedback, setCartFeedback] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' });
 
   useEffect(() => {
-    const productId = params.id as string;
-    const foundProduct = mockFurniture.find(p => p._id === productId);
-    
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setSelectedColor(foundProduct.color);
-    } else {
-      // Product not found, redirect to products page
-      router.push('/products');
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const productId = params.id as string;
+
+        const response = await fetch(`/api/products/${productId}`);
+        const data = await response.json();
+
+        if (data.success && data.data.product) {
+          const productData = data.data.product;
+          setProduct(productData);
+          setSelectedColor(productData.color || '');
+          
+          // Set related products if available
+          if (data.data.relatedProducts) {
+            setRelatedProducts(data.data.relatedProducts);
+          }
+        } else {
+          setError(data.error || 'Product not found');
+        }
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError('Failed to load product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchProduct();
     }
-    setLoading(false);
-  }, [params.id, router]);
+  }, [params.id]);
 
   const formatPrice = (price: number) => {
     return `KSh ${price.toLocaleString('en-KE')}`;
@@ -221,6 +111,22 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!product) return;
     
+    // Get image URL (handle both string and object formats)
+    const getImageUrl = (image: any): string => {
+      if (typeof image === 'string') return image;
+      if (typeof image === 'object' && image.url) return image.url;
+      return '/images/placeholder.jpg';
+    };
+
+    const firstImage = product.images && product.images.length > 0 
+      ? product.images[0] 
+      : '/images/placeholder.jpg';
+    
+    // Get category name
+    const categoryName = typeof product.category === 'string' 
+      ? product.category 
+      : product.category?.name || 'other';
+    
     // Add to cart using Zustand store
     for (let i = 0; i < quantity; i++) {
       addItem({
@@ -229,8 +135,8 @@ export default function ProductDetailPage() {
         name: product.name,
         price: product.price,
         color: selectedColor,
-        image: product.images[0],
-        category: product.category,
+        image: getImageUrl(firstImage),
+        category: categoryName,
         inStock: product.inStock
       });
     }
@@ -269,11 +175,12 @@ export default function ProductDetailPage() {
     );
   }
 
-  if (!product) {
+  if (error || (!loading && !product)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+          <p className="text-gray-600 mb-6">{error || 'The product you are looking for does not exist.'}</p>
           <button
             onClick={() => router.push('/products')}
             className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
@@ -285,12 +192,38 @@ export default function ProductDetailPage() {
     );
   }
 
-  const productColors = availableColors[product._id as keyof typeof availableColors] || [product.color];
+  if (!product) {
+    return null;
+  }
 
-  // Get related products (same category, excluding current product)
-  const relatedProducts = mockFurniture
-    .filter(p => p.category === product.category && p._id !== product._id)
-    .slice(0, 4);
+  // Get available colors - use tags or default to product color
+  const productColors = product.tags && product.tags.length > 0 
+    ? product.tags.filter(tag => tag.toLowerCase().includes('color') || tag.length < 20)
+    : [product.color || 'default'];
+  
+  // Get material as string or array
+  const materialDisplay = Array.isArray(product.material) 
+    ? product.material.join(', ') 
+    : product.material || 'N/A';
+  
+  // Get category name
+  const categoryName = typeof product.category === 'string' 
+    ? product.category 
+    : product.category?.name || 'other';
+  
+  // Get images array
+  const getImageUrls = (): string[] => {
+    if (!product.images || product.images.length === 0) {
+      return ['/images/placeholder.jpg'];
+    }
+    return product.images.map((img: any) => {
+      if (typeof img === 'string') return img;
+      if (typeof img === 'object' && img.url) return img.url;
+      return '/images/placeholder.jpg';
+    });
+  };
+
+  const imageUrls = getImageUrls();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -332,10 +265,10 @@ export default function ProductDetailPage() {
             <li>/</li>
             <li>
               <button
-                onClick={() => router.push(`/products?category=${product.category}`)}
+                onClick={() => router.push(`/products?category=${categoryName}`)}
                 className="hover:text-gray-700 capitalize"
               >
-                {product.category}
+                {categoryName}
               </button>
             </li>
             <li>/</li>
@@ -346,7 +279,7 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Product Images */}
           <div>
-            <ImageGallery images={product.images} productName={product.name} />
+            <ImageGallery images={imageUrls} productName={product.name} />
           </div>
 
           {/* Product Information */}
@@ -354,7 +287,7 @@ export default function ProductDetailPage() {
             {/* Product Header */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-gray-500 capitalize">{product.category}</span>
+                <span className="text-sm text-gray-500 capitalize">{categoryName}</span>
                 {product.featured && (
                   <span 
                     className="text-white px-2 py-1 text-xs font-medium rounded-full"
@@ -365,8 +298,26 @@ export default function ProductDetailPage() {
                 )}
               </div>
               <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">{product.name}</h1>
-              <div className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">
-                {formatPrice(product.price)}
+              <div className="flex items-center gap-3 mb-3 lg:mb-4">
+                {product.onSale && product.originalPrice ? (
+                  <>
+                    <div className="text-2xl lg:text-3xl font-bold text-gray-900">
+                      {formatPrice(product.price)}
+                    </div>
+                    <div className="text-xl line-through text-gray-500">
+                      {formatPrice(product.originalPrice)}
+                    </div>
+                    {product.discountPercentage && (
+                      <span className="bg-red-500 text-white px-2 py-1 text-sm font-medium rounded">
+                        -{product.discountPercentage}%
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-2xl lg:text-3xl font-bold text-gray-900">
+                    {formatPrice(product.price)}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -401,7 +352,7 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <span className="text-sm font-medium text-gray-600">Material:</span>
-                  <p className="text-gray-900 capitalize">{product.material}</p>
+                  <p className="text-gray-900 capitalize">{materialDisplay}</p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Dimensions:</span>
@@ -409,7 +360,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Category:</span>
-                  <p className="text-gray-900 capitalize">{product.category}</p>
+                  <p className="text-gray-900 capitalize">{categoryName}</p>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Weight Capacity:</span>
@@ -419,10 +370,12 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Color Selection */}
-            {productColors.length > 1 && (
+            {productColors.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Available Colors</h3>
-                <div className="flex gap-3">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  {productColors.length > 1 ? 'Available Colors' : 'Color'}
+                </h3>
+                <div className="flex gap-3 flex-wrap">
                   {productColors.map((color) => (
                     <button
                       key={color}
@@ -500,61 +453,12 @@ export default function ProductDetailPage() {
           <div className="mt-16">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Related Products</h2>
-              <p className="text-gray-600">You might also like these {product.category}s</p>
+              <p className="text-gray-600">You might also like these {categoryName}s</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <div key={relatedProduct._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200">
-                  {/* Product Image */}
-                  <div className="relative h-48 bg-gray-100">
-                    <img
-                      src={relatedProduct.images[0]}
-                      alt={relatedProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Stock Status Badge */}
-                    <div className="absolute top-2 right-2 rounded-full overflow-hidden">
-                      {relatedProduct.inStock ? (
-                        <span 
-                          className="text-white px-2 py-1 text-xs font-medium block"
-                          style={{ backgroundColor: '#10b981' }}
-                        >
-                          In Stock
-                        </span>
-                      ) : (
-                        <span 
-                          className="text-white px-2 py-1 text-xs font-medium block"
-                          style={{ backgroundColor: '#ef4444' }}
-                        >
-                          Out of Stock
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
-                      {relatedProduct.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 capitalize mb-2">
-                      {relatedProduct.category}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold text-gray-900">
-                        KSh {relatedProduct.price.toLocaleString('en-KE')}
-                      </div>
-                      <button 
-                        onClick={() => router.push(`/products/${relatedProduct._id}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
-                      >
-                        View
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <ProductCard key={relatedProduct._id} product={relatedProduct} />
               ))}
             </div>
           </div>

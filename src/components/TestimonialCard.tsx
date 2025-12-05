@@ -8,12 +8,29 @@ interface TestimonialCardProps {
 }
 
 export default function TestimonialCard({ testimonial, variant = 'default' }: TestimonialCardProps) {
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
+  const formatDate = (date: Date | string | undefined | null) => {
+    if (!date) {
+      return 'Recently';
+    }
+
+    try {
+      // Convert string to Date if needed
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      
+      // Check if date is valid
+      if (isNaN(dateObj.getTime())) {
+        return 'Recently';
+      }
+
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }).format(dateObj);
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Recently';
+    }
   };
 
   const renderStars = (rating: number) => {

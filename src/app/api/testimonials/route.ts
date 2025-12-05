@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       text: t.text,
       image: t.image || undefined,
       product: t.product || undefined,
-      date: t.createdAt,
+      date: t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString(),
       verified: t.verified,
       featured: t.featured
     }));
