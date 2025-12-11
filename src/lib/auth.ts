@@ -35,11 +35,13 @@ export const authOptions: NextAuthOptions = {
           }).select('+password');
 
           if (!user) {
+            console.error('User not found:', credentials.email);
             return null;
           }
 
           // Check if user is active
           if (!user.isActive) {
+            console.error('User is not active:', credentials.email);
             return null;
           }
 
@@ -47,6 +49,7 @@ export const authOptions: NextAuthOptions = {
           const isPasswordValid = await user.comparePassword(credentials.password);
 
           if (!isPasswordValid) {
+            console.error('Invalid password for user:', credentials.email);
             return null;
           }
 
@@ -98,5 +101,7 @@ export const authOptions: NextAuthOptions = {
     error: '/admin/login?error=AuthenticationError'
   },
   secret: NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development'
+  debug: process.env.NODE_ENV === 'development',
+  // Trust proxy for Vercel - this is crucial for production
+  trustHost: true,
 };
