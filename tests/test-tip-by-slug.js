@@ -64,9 +64,3 @@ async function testTipBySlug() {
 
 testTipBySlug();
 
-
-
-
-
-
-

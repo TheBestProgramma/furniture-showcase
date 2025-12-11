@@ -2,7 +2,7 @@
 
 /**
  * Setup script to create the first admin user
- * Usage: node setup-admin.js
+ * Usage: node scripts/setup-admin.js
  */
 
 const { execSync } = require('child_process');
@@ -61,9 +61,4 @@ async function setupAdmin() {
 }
 
 setupAdmin();
-
-
-
-
-
 

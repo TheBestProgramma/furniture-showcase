@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { OrderDetailsModal } from './OrderDetailsModal';
 
@@ -37,7 +38,10 @@ interface OrdersTableProps {
   onStatusUpdate?: (orderId: string, newStatus: string) => void;
 }
 
-export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
+function OrdersTableContent({ onStatusUpdate }: OrdersTableProps) {
+  const searchParams = useSearchParams();
+  const customerEmailFromUrl = searchParams.get('customerEmail');
+  
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +49,7 @@ export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(customerEmailFromUrl || '');
 
   const statusOptions = [
     { value: 'all', label: 'All Orders' },
@@ -81,7 +85,8 @@ export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
         page: currentPage.toString(),
         limit: '10',
         ...(statusFilter !== 'all' && { status: statusFilter }),
-        ...(searchTerm && { orderNumber: searchTerm })
+        ...(customerEmailFromUrl ? { customerEmail: customerEmailFromUrl } : {}),
+        ...(searchTerm && !customerEmailFromUrl && { orderNumber: searchTerm })
       });
 
       const response = await fetch(`/api/admin/orders?${params}`);
@@ -103,7 +108,7 @@ export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, statusFilter]);
+  }, [currentPage, statusFilter, customerEmailFromUrl]);
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {
@@ -206,10 +211,11 @@ export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
             <div className="flex-1 relative">
               <input
                 type="text"
-                placeholder="Search by order number..."
+                placeholder={customerEmailFromUrl ? `Filtering by: ${customerEmailFromUrl}` : "Search by order number..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                disabled={!!customerEmailFromUrl}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
             <select
@@ -437,6 +443,21 @@ export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
         />
       )}
     </>
+  );
+}
+
+export function OrdersTable({ onStatusUpdate }: OrdersTableProps) {
+  return (
+    <Suspense fallback={
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    }>
+      <OrdersTableContent onStatusUpdate={onStatusUpdate} />
+    </Suspense>
   );
 }
 

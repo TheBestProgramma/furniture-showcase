@@ -19,7 +19,7 @@ function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header/Navbar */}
-      <nav className="bg-primary-700 text-white shadow-lg sticky top-0 z-50" style={{backgroundColor: '#15803d'}}>
+      <nav className="bg-primary-700 text-white shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}

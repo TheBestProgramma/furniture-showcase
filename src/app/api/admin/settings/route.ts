@@ -153,9 +153,21 @@ export async function PUT(request: NextRequest) {
       if (updateData.siteDescription !== undefined) settings.siteDescription = updateData.siteDescription;
       if (updateData.whatsappPhone !== undefined) {
         settings.whatsappPhone = updateData.whatsappPhone;
-        // Also update contactInfo.phone if it exists
-        if (settings.contactInfo) {
+        // Sync with contactInfo.phone
+        if (!settings.contactInfo) {
+          settings.contactInfo = { phone: updateData.whatsappPhone } as any;
+        } else {
           settings.contactInfo.phone = updateData.whatsappPhone;
+        }
+      }
+      
+      // If contactInfo.phone is updated separately, also sync with whatsappPhone
+      if (updateData.contactInfo?.phone !== undefined) {
+        settings.whatsappPhone = updateData.contactInfo.phone;
+        if (!settings.contactInfo) {
+          settings.contactInfo = { phone: updateData.contactInfo.phone } as any;
+        } else {
+          settings.contactInfo.phone = updateData.contactInfo.phone;
         }
       }
       if (updateData.returnPolicy !== undefined) settings.returnPolicy = updateData.returnPolicy;

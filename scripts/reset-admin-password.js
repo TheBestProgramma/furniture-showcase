@@ -2,8 +2,8 @@
 
 /**
  * Script to reset admin password
- * Usage: node reset-admin-password.js [email] [newPassword]
- * Or run interactively: node reset-admin-password.js
+ * Usage: node scripts/reset-admin-password.js [email] [newPassword]
+ * Or run interactively: node scripts/reset-admin-password.js
  */
 
 const { execSync } = require('child_process');

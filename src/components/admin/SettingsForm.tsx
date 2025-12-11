@@ -10,6 +10,13 @@ interface Settings {
   contactInfo?: {
     email?: string;
     phone?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      zipCode?: string;
+      country?: string;
+    };
   };
 }
 
@@ -24,7 +31,18 @@ export function SettingsForm({ settings, onSave, loading = false }: SettingsForm
     siteName: '',
     siteDescription: '',
     whatsappPhone: '',
-    returnPolicy: ''
+    returnPolicy: '',
+    contactInfo: {
+      email: '',
+      phone: '',
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: ''
+      }
+    }
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,7 +53,18 @@ export function SettingsForm({ settings, onSave, loading = false }: SettingsForm
         siteName: settings.siteName || '',
         siteDescription: settings.siteDescription || '',
         whatsappPhone: settings.whatsappPhone || settings.contactInfo?.phone || '',
-        returnPolicy: settings.returnPolicy || ''
+        returnPolicy: settings.returnPolicy || '',
+        contactInfo: {
+          email: settings.contactInfo?.email || '',
+          phone: settings.contactInfo?.phone || settings.whatsappPhone || '',
+          address: {
+            street: settings.contactInfo?.address?.street || '',
+            city: settings.contactInfo?.address?.city || '',
+            state: settings.contactInfo?.address?.state || '',
+            zipCode: settings.contactInfo?.address?.zipCode || '',
+            country: settings.contactInfo?.address?.country || ''
+          }
+        }
       });
     }
   }, [settings]);
@@ -43,10 +72,41 @@ export function SettingsForm({ settings, onSave, loading = false }: SettingsForm
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    // Handle nested contactInfo fields
+    if (name.startsWith('contactInfo.')) {
+      const parts = name.split('.');
+      
+      if (parts.length === 2) {
+        // contactInfo.email or contactInfo.phone
+        const field = parts[1];
+        setFormData(prev => ({
+          ...prev,
+          contactInfo: {
+            ...prev.contactInfo,
+            [field]: value
+          } as any
+        }));
+      } else if (parts.length === 3 && parts[1] === 'address') {
+        // contactInfo.address.street, contactInfo.address.city, etc.
+        const addressField = parts[2];
+        setFormData(prev => ({
+          ...prev,
+          contactInfo: {
+            ...prev.contactInfo,
+            address: {
+              ...prev.contactInfo?.address,
+              [addressField]: value
+            }
+          } as any
+        }));
+      }
+    } else {
+      // Handle top-level fields
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
     
     // Clear error when user starts typing
     if (errors[name]) {
@@ -92,7 +152,15 @@ export function SettingsForm({ settings, onSave, loading = false }: SettingsForm
     }
 
     try {
-      await onSave(formData);
+      // Sync whatsappPhone with contactInfo.phone
+      const dataToSave = {
+        ...formData,
+        contactInfo: {
+          ...formData.contactInfo,
+          phone: formData.whatsappPhone || formData.contactInfo?.phone
+        }
+      };
+      await onSave(dataToSave);
     } catch (error) {
       console.error('Save error:', error);
     }
@@ -146,26 +214,129 @@ export function SettingsForm({ settings, onSave, loading = false }: SettingsForm
 
       {/* Contact & WhatsApp */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">WhatsApp Configuration</h3>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Seller Phone Number (WhatsApp) *
-          </label>
-          <input
-            type="tel"
-            name="whatsappPhone"
-            value={formData.whatsappPhone || ''}
-            onChange={handleInputChange}
-            maxLength={20}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.whatsappPhone ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="+254712345678 or 0712345678"
-          />
-          {errors.whatsappPhone && <p className="text-red-500 text-sm mt-1">{errors.whatsappPhone}</p>}
-          <p className="text-xs text-gray-500 mt-1">
-            This phone number will be used for WhatsApp order notifications. Format: +254712345678 or 0712345678
-          </p>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="contactInfo.email"
+              value={formData.contactInfo?.email || ''}
+              onChange={handleInputChange}
+              maxLength={100}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="info@yourbusiness.com"
+            />
+            <p className="text-xs text-gray-500 mt-1">This email will be displayed in the footer and used for customer inquiries.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number (WhatsApp) *
+            </label>
+            <input
+              type="tel"
+              name="whatsappPhone"
+              value={formData.whatsappPhone || ''}
+              onChange={handleInputChange}
+              maxLength={20}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.whatsappPhone ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="+254712345678 or 0712345678"
+            />
+            {errors.whatsappPhone && <p className="text-red-500 text-sm mt-1">{errors.whatsappPhone}</p>}
+            <p className="text-xs text-gray-500 mt-1">
+              This phone number will be used for WhatsApp order notifications and displayed in the footer. Format: +254712345678 or 0712345678
+            </p>
+          </div>
+
+          <div className="border-t pt-4 mt-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Business Address</h4>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Street Address
+                </label>
+                <input
+                  type="text"
+                  name="contactInfo.address.street"
+                  value={formData.contactInfo?.address?.street || ''}
+                  onChange={handleInputChange}
+                  maxLength={200}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="123 Main Street"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    name="contactInfo.address.city"
+                    value={formData.contactInfo?.address?.city || ''}
+                    onChange={handleInputChange}
+                    maxLength={50}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nairobi"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    State/Province
+                  </label>
+                  <input
+                    type="text"
+                    name="contactInfo.address.state"
+                    value={formData.contactInfo?.address?.state || ''}
+                    onChange={handleInputChange}
+                    maxLength={50}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nairobi"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ZIP/Postal Code
+                  </label>
+                  <input
+                    type="text"
+                    name="contactInfo.address.zipCode"
+                    value={formData.contactInfo?.address?.zipCode || ''}
+                    onChange={handleInputChange}
+                    maxLength={10}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="00100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Country
+                  </label>
+                  <input
+                    type="text"
+                    name="contactInfo.address.country"
+                    value={formData.contactInfo?.address?.country || ''}
+                    onChange={handleInputChange}
+                    maxLength={50}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Kenya"
+                  />
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">This address will be displayed in the footer.</p>
+          </div>
         </div>
       </div>
 

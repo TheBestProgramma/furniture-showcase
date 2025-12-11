@@ -3,9 +3,8 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
-import { IFurniture } from '@/lib/models/Furniture';
 
-// Common interface for furniture data (used by both mock data and components)
+// Common interface for furniture data
 interface FurnitureData {
   _id: string;
   name: string;
@@ -58,13 +57,13 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 group relative">
       {/* Product Image */}
-      <div className="relative h-64 bg-gray-100 group overflow-hidden">
+      <div className="relative h-64 bg-gray-100 group overflow-hidden cursor-pointer" onClick={() => router.push(`/products/${product._id}`)}>
         {product.images && product.images.length > 0 ? (
           <Image
             src={typeof product.images[0] === 'string' ? product.images[0] : (product.images[0] as any)?.url}
             alt={product.name}
             fill
-            className="object-cover transition-all duration-300 group-hover:blur-sm group-hover:brightness-75"
+            className="object-cover transition-all duration-300 group-hover:blur-sm"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
@@ -76,7 +75,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
         
         {/* Stock Status Badge */}
-        <div className="absolute top-2 right-2 rounded-full overflow-hidden">
+        <div className="absolute top-2 right-2 rounded-full overflow-hidden z-10">
           {product.inStock ? (
             <span 
               className="text-white px-2 py-1 text-xs font-medium block"
@@ -106,7 +105,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Featured Badge */}
         {product.featured && (
-          <div className="absolute top-2 left-2 rounded-full overflow-hidden">
+          <div className="absolute top-2 left-2 rounded-full overflow-hidden z-10">
             <span 
               className="text-white px-2 py-1 text-xs font-medium block"
               style={{ 
@@ -121,15 +120,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* Clickable Overlay - Shows on Hover */}
-        <div 
-          className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 opacity-0 group-hover:opacity-100 cursor-pointer flex items-center justify-center"
-          onClick={() => router.push(`/products/${product._id}`)}
-        >
-          {/* Hover indicator */}
-          <div className="transform scale-0 group-hover:scale-100 transition-all duration-300">
-            <div className="bg-white bg-opacity-90 rounded-full p-3 shadow-lg">
-              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        {/* Hover Overlay - Eye Icon */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
+          <div className="transform scale-0 group-hover:scale-100 transition-transform duration-300">
+            <div className="bg-white bg-opacity-90 rounded-full p-3 shadow-xl">
+              <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
